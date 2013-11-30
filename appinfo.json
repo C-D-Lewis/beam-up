@@ -1,0 +1,29 @@
+{
+    "versionLabel": "2.0.0",
+    "uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
+    "appKeys": {
+        "dummy": 0
+    },
+    "longName": "Beam Up",
+    "versionCode": 2,
+    "shortName": "BeamUp",
+    "companyName": "Chris Lewis",
+    "watchapp": {
+        "watchface": true
+    },
+    "resources": {
+        "media": [
+            {
+                "type": "font",
+                "name": "FONT_IMAGINE_48",
+                "file": "fonts/imagine.ttf"
+            },
+            {
+                "menuIcon": true,
+                "type": "png",
+                "name": "IMAGE_MENU_ICON",
+                "file": "images/menu_icon.png"
+            }
+        ]
+    }
+}
