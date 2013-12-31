@@ -1,7 +1,7 @@
 /**
 	* Beam Up Pebble Watchface
 	* Author: Chris Lewis
-	* Date: 8th November 2013
+	* Date: 31st December 2013
 	*/
 
 #include <pebble.h>
@@ -20,18 +20,12 @@
 void getTimeDigits(struct tm *t);
 void setTimeDigits();
 void predictNextDigits(struct tm *t);
-void animateLayer(PropertyAnimation *animation, Layer *input, GRect startLocation, GRect finishLocation, int duration, int delay);
-void setupTextLayer(TextLayer *layer, GRect location, GColor b_colour, GColor t_colour, ResHandle f_handle, GTextAlignment alignment);
+void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay);
 
 //Globals
 static Window *window;
 static TextLayer *HTLayer, *HULayer, *colonLayer, *MTLayer, *MULayer;
 static InverterLayer *HTInvLayer, *HUInvLayer, *MTInvLayer, *MUInvLayer, *bottomInvLayer;
-static PropertyAnimation *HTUpAnim, *HTDownAnim, *HUUpAnim, *HUDownAnim, 
-									*MTUpAnim, *MTDownAnim, *MUUpAnim, *MUDownAnim, 
-									*HTInvUpAnim, *HTInvDownAnim, *HUInvUpAnim, *HUInvDownAnim, 
-									*MTInvUpAnim, *MTInvDownAnim, *MUInvUpAnim, *MUInvDownAnim,
-									*bottomInvRightAnim, *bottomInvLeftAnim;
 static int HTDigit = 0, HTprev = 0, 
 					 HUDigit = 0, HUprev = 0, 
 					 MTDigit = 0, MTprev = 0,
@@ -52,19 +46,19 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
     //Bottom suface
     if(seconds == 15)
     {
-        animateLayer(bottomInvRightAnim, inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
+        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
     }
     else if(seconds == 30)  
     {
-        animateLayer(bottomInvRightAnim, inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
+        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
     }
     else if(seconds == 45)  
     {
-        animateLayer(bottomInvRightAnim, inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
+        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
     }
     else if(seconds == 58)  
     {
-        animateLayer(bottomInvRightAnim, inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
+        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
     }
      
     //Animations and time change
@@ -76,29 +70,29 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         //Only change minutes units if its changed
         if((MUDigit != MUprev) || (DEBUG)) 
         {
-            animateLayer(MUInvDownAnim, inverter_layer_get_layer(MUInvLayer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
-            animateLayer(MUUpAnim, text_layer_get_layer(MULayer), GRect(MUX, 53, 50, 60), GRect(MUX, -50, 50, 60), 200, 700);
+            animate_layer(inverter_layer_get_layer(MUInvLayer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            animate_layer(text_layer_get_layer(MULayer), GRect(MUX, 53, 50, 60), GRect(MUX, -50, 50, 60), 200, 700);
         }
          
         //Only change minutes tens if its changed
         if((MTDigit != MTprev) || (DEBUG)) 
         {
-            animateLayer(MTInvDownAnim, inverter_layer_get_layer(MTInvLayer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
-            animateLayer(MTUpAnim, text_layer_get_layer(MTLayer), GRect(MTX, 53, 50, 60), GRect(MTX, -50, 50, 60), 200, 700);
+            animate_layer(inverter_layer_get_layer(MTInvLayer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            animate_layer(text_layer_get_layer(MTLayer), GRect(MTX, 53, 50, 60), GRect(MTX, -50, 50, 60), 200, 700);
         }
          
         //Only change hours units if its changed
         if((HUDigit != HUprev) || (DEBUG)) 
         {
-            animateLayer(HUInvDownAnim, inverter_layer_get_layer(HUInvLayer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
-            animateLayer(HUUpAnim, text_layer_get_layer(HULayer), GRect(HUX, 53, 50, 60), GRect(HUX, -50, 50, 60), 200, 700);
+            animate_layer(inverter_layer_get_layer(HUInvLayer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            animate_layer(text_layer_get_layer(HULayer), GRect(HUX, 53, 50, 60), GRect(HUX, -50, 50, 60), 200, 700);
         }
          
         //Only change hours tens if its changed
         if((HTDigit != HTprev) || (DEBUG)) 
         {
-            animateLayer(HTInvDownAnim, inverter_layer_get_layer(HTInvLayer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
-            animateLayer(HTUpAnim, text_layer_get_layer(HTLayer), GRect(HTX, 53, 50, 60), GRect(HTX, -50, 50, 60), 200, 700);
+            animate_layer(inverter_layer_get_layer(HTInvLayer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            animate_layer(text_layer_get_layer(HTLayer), GRect(HTX, 53, 50, 60), GRect(HTX, -50, 50, 60), 200, 700);
         }      
     } 
     else if(seconds == 0) 
@@ -111,31 +105,31 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         //Animate stuff back into place
         if((MUDigit != MUprev) || (DEBUG)) 
         {       
-            animateLayer(MUDownAnim, text_layer_get_layer(MULayer), GRect(MUX, -50, 50, 60), GRect(MUX, 53, 50, 60), 200, 100);
-            animateLayer(MUInvUpAnim, inverter_layer_get_layer(MUInvLayer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            animate_layer(text_layer_get_layer(MULayer), GRect(MUX, -50, 50, 60), GRect(MUX, 53, 50, 60), 200, 100);
+            animate_layer(inverter_layer_get_layer(MUInvLayer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
             MUprev = MUDigit;   //reset the thing
         }
         if((MTDigit != MTprev) || (DEBUG)) 
         {
-            animateLayer(MTDownAnim, text_layer_get_layer(MTLayer), GRect(MTX, -50, 50, 60), GRect(MTX, 53, 50, 60), 200, 100);
-            animateLayer(MTInvUpAnim, inverter_layer_get_layer(MTInvLayer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            animate_layer(text_layer_get_layer(MTLayer), GRect(MTX, -50, 50, 60), GRect(MTX, 53, 50, 60), 200, 100);
+            animate_layer(inverter_layer_get_layer(MTInvLayer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
             MTprev = MTDigit;   
         }
         if((HUDigit != HUprev) || (DEBUG)) 
         {       
-            animateLayer(HUDownAnim, text_layer_get_layer(HULayer), GRect(HUX, -50, 50, 60), GRect(HUX, 53, 50, 60), 200, 100);
-            animateLayer(HUInvUpAnim, inverter_layer_get_layer(HUInvLayer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            animate_layer(text_layer_get_layer(HULayer), GRect(HUX, -50, 50, 60), GRect(HUX, 53, 50, 60), 200, 100);
+            animate_layer(inverter_layer_get_layer(HUInvLayer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
             HUprev = HUDigit;   
         }
         if((HTDigit != HTprev) || (DEBUG)) 
         {
-            animateLayer(HTDownAnim, text_layer_get_layer(HTLayer), GRect(HTX, -50, 50, 60), GRect(HTX, 53, 50, 60), 200, 100);
-            animateLayer(HTInvUpAnim, inverter_layer_get_layer(HTInvLayer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            animate_layer(text_layer_get_layer(HTLayer), GRect(HTX, -50, 50, 60), GRect(HTX, 53, 50, 60), 200, 100);
+            animate_layer(inverter_layer_get_layer(HTInvLayer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
             HTprev = HTDigit;   
         }
          
         //Bottom surface down
-        animateLayer(bottomInvLeftAnim, inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
+        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
     } 
 }
 
@@ -183,12 +177,6 @@ static void window_load(Window *window) {
 	text_layer_set_font(MULayer, fonts_load_custom_font(f_handle));
 	text_layer_set_text_alignment(MULayer, GTextAlignmentRight);
 	layer_add_child(window_get_root_layer(window), (Layer*) MULayer);
-	
-//	setupTextLayer(HTLayer, GRect(HTX, 53, 50, 60), GColorClear, GColorWhite, f_handle, GTextAlignmentRight);	//One day!
-//	setupTextLayer(HULayer, GRect(HUX, 53, 50, 60), GColorClear, GColorWhite, f_handle, GTextAlignmentRight);
-//	setupTextLayer(colonLayer, GRect(69, 53, 50, 60), GColorClear, GColorWhite, f_handle, GTextAlignmentLeft);
-//	setupTextLayer(MTLayer, GRect(MTX, 53, 50, 60), GColorClear, GColorWhite, f_handle, GTextAlignmentRight);
-//	setupTextLayer(MULayer, GRect(MUX, 53, 50, 60), GColorClear, GColorWhite, f_handle, GTextAlignmentRight);
 	
 	//Allocate inverter layers
 	HTInvLayer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));	
@@ -248,10 +236,11 @@ static void window_unload(Window *window) {
  */
 static void init(void) {
 	window = window_create();
-	window_set_window_handlers(window, (WindowHandlers) {
+	WindowHandlers handlers = {
 		.load = window_load,
-		.unload = window_unload,
-    });
+		.unload = window_unload
+	};
+	window_set_window_handlers(window, (WindowHandlers) handlers);
 	
 	//Subscribe to events
 	tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
@@ -280,16 +269,6 @@ int main(void) {
  * Function definitions
  ***************************************************************************8
  */
-/*
-void setupTextLayer(TextLayer *layer, GRect location, GColor b_colour, GColor t_colour, ResHandle f_handle, GTextAlignment alignment)
-{
-	layer = text_layer_create(location);
-	text_layer_set_background_color(layer, b_colour);
-	text_layer_set_text_color(layer, t_colour);
-	text_layer_set_font(layer, fonts_load_custom_font(f_handle));
-	text_layer_set_text_alignment(layer, alignment);
-	layer_add_child(window_get_root_layer(window), (Layer*) layer);
-} */
 
 /**
 	* Function to get time digits
@@ -378,53 +357,32 @@ void predictNextDigits(struct tm *t) {
 }
 
 /**
-	* Destory an animation to conserve memory
-	* Source: https://github.com/fuzzie360/pebble-noms/blob/master/src/noms.c
-	*/
-void destroy_property_animation(PropertyAnimation *prop_animation) {
-    if (prop_animation == NULL) {
-        return;
-    }
-
-    if (animation_is_scheduled((Animation*) prop_animation)) {
-        animation_unschedule((Animation*) prop_animation);
-    }
-
-    property_animation_destroy(prop_animation);
-    prop_animation = NULL;
-}
-
-/**
-	* Animation handlers
-	*/
-void animation_started(Animation *animation, void *data) {
-    (void)animation;
-    (void)data;
-}
-
-void animation_stopped(Animation *animation, void *data) {
-    (void)data;
-	
-	//Teardown
-	destroy_property_animation((PropertyAnimation*) animation);
-}
-
-/**
-	* Function to linearly animate any layer between two GRects
-	*/
-void animateLayer(PropertyAnimation *animation, Layer *input, GRect startLocation, GRect finishLocation, int duration, int delay) 
+ * New dymanic animations
+ */
+void on_animation_stopped(Animation *anim, bool finished, void *context)
 {
-	animation = property_animation_create_layer_frame(input, &startLocation, &finishLocation);
-	animation_set_duration((Animation*) animation, duration);
-	animation_set_delay((Animation*) animation, delay);
-	animation_set_curve((Animation*) animation, AnimationCurveEaseInOut);
-	animation_set_handlers((Animation*) animation, (AnimationHandlers) {
-            .started = (AnimationStartedHandler) animation_started,
-            .stopped = (AnimationStoppedHandler) animation_stopped
-    }, 0);
-	while(!animation_is_scheduled((Animation*) animation)) 
-	{
-		animation_schedule((Animation*) animation);
-	}
+	//Free the memoery used by the Animation
+	property_animation_destroy((PropertyAnimation*) anim);
+}
+
+void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay)
+{
+	//Declare animation
+	PropertyAnimation *anim = property_animation_create_layer_frame(layer, &start, &finish);
+	
+	//Set characteristics
+	animation_set_duration((Animation*) anim, duration);
+	animation_set_delay((Animation*) anim, delay);
+	animation_set_curve((Animation*) anim, AnimationCurveEaseInOut);
+	
+	//Set stopped handler to free memory
+	AnimationHandlers handlers = {
+		//The reference to the stopped handler is the only one in the array
+		.stopped = (AnimationStoppedHandler) on_animation_stopped
+	};
+	animation_set_handlers((Animation*) anim, handlers, NULL);
+	
+	//Start animation!
+	animation_schedule((Animation*) anim);
 }
 
