@@ -122,7 +122,7 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         //Bottom surface down
         cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
         break;
-    case 1:
+    case 2:
     	//Reset InverterLayers
     	layer_set_frame(inverter_layer_get_layer(h_t_inv_layer), GRect(0, 0, 0, 0));
     	layer_set_frame(inverter_layer_get_layer(h_u_inv_layer), GRect(0, 0, 0, 0));
