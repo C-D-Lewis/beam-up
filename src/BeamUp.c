@@ -1,39 +1,36 @@
 /**
 	* Beam Up Pebble Watchface
 	* Author: Chris Lewis
-	* Date: 31st December 2013
+	* Date: 11th March 2014
 	*/
 
 #include <pebble.h>
+#include "cl_util.h"
 
 #define DEBUG false
 
 #define INV_LAYER_WIDTH 30
 #define INV_LAYER_HEIGHT 101
-#define HTX -12 
-#define HUX 22
-#define MTX 64
-#define MUX 98
+#define HTX -13 
+#define HUX 21
+#define MTX 63
+#define MUX 97
 #define OFFSET 14
 
 //Prototypes
-void getTimeDigits(struct tm *t);
-void setTimeDigits();
-void predictNextDigits(struct tm *t);
-void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay);
+void get_time_digits(struct tm *t);
+void set_time_digits();
+void predict_next_digits(struct tm *t);
 
 //Globals
 static Window *window;
-static TextLayer *HTLayer, *HULayer, *colonLayer, *MTLayer, *MULayer;
-static InverterLayer *HTInvLayer, *HUInvLayer, *MTInvLayer, *MUInvLayer, *bottomInvLayer;
-static int HTDigit = 0, HTprev = 0, 
-					 HUDigit = 0, HUprev = 0, 
-					 MTDigit = 0, MTprev = 0,
-					 MUDigit = 0, MUprev = 0;
-static char hourText[] = "00", minuteText[] = "00",
-						HTText[] = "0", HUText[] = "0",
-						colonText[] = ":",
-						MTText[] = "0", MUText[] = "0";
+static TextLayer *h_t_layer, *h_u_layer, *colon_layer, *m_t_layer, *m_u_layer;
+static InverterLayer *h_t_inv_layer, *h_u_inv_layer, *m_t_inv_layer, *m_u_inv_layer, *bottom_inv_layer;
+static int   h_t_digit = 0, h_t_prev = 0, 
+    		 h_u_digit = 0, h_u_prev = 0, 
+    		 m_t_digit = 0, m_t_prev = 0,
+    		 m_u_digit = 0, m_u_prev = 0;
+static char time_text[5];
 
 /**
     * Handle tick function
@@ -44,93 +41,104 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
     int seconds = t->tm_sec;
      
     //Bottom suface
-    if(seconds == 15)
+    switch(seconds)
     {
-        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
-    }
-    else if(seconds == 30)  
-    {
-        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
-    }
-    else if(seconds == 45)  
-    {
-        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
-    }
-    else if(seconds == 58)  
-    {
-        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
-    }
-     
-    //Animations and time change
-    else if(seconds == 59) 
-    {
+    case 15:
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
+        break;
+    case 30:
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
+        break;
+    case 45:
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
+        break;
+    case 58:
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
+        break;
+    case 59:
         //Predict next changes
-        predictNextDigits(t); //CALLS GETTIMEDIGITS()
+        predict_next_digits(t); //CALLS get_time_digits()
          
         //Only change minutes units if its changed
-        if((MUDigit != MUprev) || (DEBUG)) 
+        if((m_u_digit != m_u_prev) || (DEBUG)) 
         {
-            animate_layer(inverter_layer_get_layer(MUInvLayer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
-            animate_layer(text_layer_get_layer(MULayer), GRect(MUX, 53, 50, 60), GRect(MUX, -50, 50, 60), 200, 700);
+            cl_animate_layer(inverter_layer_get_layer(m_u_inv_layer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            cl_animate_layer(text_layer_get_layer(m_u_layer), GRect(MUX, 53, 50, 60), GRect(MUX, -50, 50, 60), 200, 700);
         }
          
         //Only change minutes tens if its changed
-        if((MTDigit != MTprev) || (DEBUG)) 
+        if((m_t_digit != m_t_prev) || (DEBUG)) 
         {
-            animate_layer(inverter_layer_get_layer(MTInvLayer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
-            animate_layer(text_layer_get_layer(MTLayer), GRect(MTX, 53, 50, 60), GRect(MTX, -50, 50, 60), 200, 700);
+            cl_animate_layer(inverter_layer_get_layer(m_t_inv_layer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            cl_animate_layer(text_layer_get_layer(m_t_layer), GRect(MTX, 53, 50, 60), GRect(MTX, -50, 50, 60), 200, 700);
         }
          
         //Only change hours units if its changed
-        if((HUDigit != HUprev) || (DEBUG)) 
+        if((h_u_digit != h_u_prev) || (DEBUG)) 
         {
-            animate_layer(inverter_layer_get_layer(HUInvLayer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
-            animate_layer(text_layer_get_layer(HULayer), GRect(HUX, 53, 50, 60), GRect(HUX, -50, 50, 60), 200, 700);
+            cl_animate_layer(inverter_layer_get_layer(h_u_inv_layer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            cl_animate_layer(text_layer_get_layer(h_u_layer), GRect(HUX, 53, 50, 60), GRect(HUX, -50, 50, 60), 200, 700);
         }
          
         //Only change hours tens if its changed
-        if((HTDigit != HTprev) || (DEBUG)) 
+        if((h_t_digit != h_t_prev) || (DEBUG)) 
         {
-            animate_layer(inverter_layer_get_layer(HTInvLayer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
-            animate_layer(text_layer_get_layer(HTLayer), GRect(HTX, 53, 50, 60), GRect(HTX, -50, 50, 60), 200, 700);
-        }      
-    } 
-    else if(seconds == 0) 
-    {       
-        getTimeDigits(t);
+            cl_animate_layer(inverter_layer_get_layer(h_t_inv_layer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            cl_animate_layer(text_layer_get_layer(h_t_layer), GRect(HTX, 53, 50, 60), GRect(HTX, -50, 50, 60), 200, 700);
+        }
+        break;
+    case 0:      
+        get_time_digits(t);
          
         //Set the time off screen
-        setTimeDigits(); 
+        set_time_digits(); 
  
         //Animate stuff back into place
-        if((MUDigit != MUprev) || (DEBUG)) 
+        if((m_u_digit != m_u_prev) || (DEBUG)) 
         {       
-            animate_layer(text_layer_get_layer(MULayer), GRect(MUX, -50, 50, 60), GRect(MUX, 53, 50, 60), 200, 100);
-            animate_layer(inverter_layer_get_layer(MUInvLayer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
-            MUprev = MUDigit;   //reset the thing
+            cl_animate_layer(text_layer_get_layer(m_u_layer), GRect(MUX, -50, 50, 60), GRect(MUX, 53, 50, 60), 200, 100);
+            cl_animate_layer(inverter_layer_get_layer(m_u_inv_layer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            m_u_prev = m_u_digit;   //reset the thing
         }
-        if((MTDigit != MTprev) || (DEBUG)) 
+        if((m_t_digit != m_t_prev) || (DEBUG)) 
         {
-            animate_layer(text_layer_get_layer(MTLayer), GRect(MTX, -50, 50, 60), GRect(MTX, 53, 50, 60), 200, 100);
-            animate_layer(inverter_layer_get_layer(MTInvLayer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
-            MTprev = MTDigit;   
+            cl_animate_layer(text_layer_get_layer(m_t_layer), GRect(MTX, -50, 50, 60), GRect(MTX, 53, 50, 60), 200, 100);
+            cl_animate_layer(inverter_layer_get_layer(m_t_inv_layer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            m_t_prev = m_t_digit;   
         }
-        if((HUDigit != HUprev) || (DEBUG)) 
+        if((h_u_digit != h_u_prev) || (DEBUG)) 
         {       
-            animate_layer(text_layer_get_layer(HULayer), GRect(HUX, -50, 50, 60), GRect(HUX, 53, 50, 60), 200, 100);
-            animate_layer(inverter_layer_get_layer(HUInvLayer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
-            HUprev = HUDigit;   
+            cl_animate_layer(text_layer_get_layer(h_u_layer), GRect(HUX, -50, 50, 60), GRect(HUX, 53, 50, 60), 200, 100);
+            cl_animate_layer(inverter_layer_get_layer(h_u_inv_layer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            h_u_prev = h_u_digit;   
         }
-        if((HTDigit != HTprev) || (DEBUG)) 
+        if((h_t_digit != h_t_prev) || (DEBUG)) 
         {
-            animate_layer(text_layer_get_layer(HTLayer), GRect(HTX, -50, 50, 60), GRect(HTX, 53, 50, 60), 200, 100);
-            animate_layer(inverter_layer_get_layer(HTInvLayer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
-            HTprev = HTDigit;   
+            cl_animate_layer(text_layer_get_layer(h_t_layer), GRect(HTX, -50, 50, 60), GRect(HTX, 53, 50, 60), 200, 100);
+            cl_animate_layer(inverter_layer_get_layer(h_t_inv_layer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            h_t_prev = h_t_digit;   
         }
          
         //Bottom surface down
-        animate_layer(inverter_layer_get_layer(bottomInvLayer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
-    } 
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
+        break;
+    case 1:
+    	//Reset InverterLayers
+    	layer_set_frame(inverter_layer_get_layer(h_t_inv_layer), GRect(0, 0, 0, 0));
+    	layer_set_frame(inverter_layer_get_layer(h_u_inv_layer), GRect(0, 0, 0, 0));
+    	layer_set_frame(inverter_layer_get_layer(m_t_inv_layer), GRect(0, 0, 0, 0));
+    	layer_set_frame(inverter_layer_get_layer(m_u_inv_layer), GRect(0, 0, 0, 0));
+
+    	//Reset TextLayers to show time
+    	layer_set_frame(text_layer_get_layer(h_t_layer), GRect(HTX, 53, 50, 60));
+    	layer_set_frame(text_layer_get_layer(h_u_layer), GRect(HUX, 53, 50, 60));
+    	layer_set_frame(text_layer_get_layer(m_t_layer), GRect(MTX, 53, 50, 60));
+    	layer_set_frame(text_layer_get_layer(m_u_layer), GRect(MUX, 53, 50, 60));
+
+        //Get the time
+        set_time_digits(t);
+        break;
+    }
 }
 
 /*
@@ -139,74 +147,66 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
 static void window_load(Window *window) {
 	window_set_background_color(window, GColorBlack);
 	
-	//Get Font
-	ResHandle f_handle = resource_get_handle(RESOURCE_ID_FONT_IMAGINE_48);
-	
 	//Allocate text layers
-	HTLayer = text_layer_create(GRect(HTX, 53, 50, 60));
-	text_layer_set_background_color(HTLayer, GColorClear);
-	text_layer_set_text_color(HTLayer, GColorWhite);
-	text_layer_set_font(HTLayer, fonts_load_custom_font(f_handle));
-	text_layer_set_text_alignment(HTLayer, GTextAlignmentRight);
-	layer_add_child(window_get_root_layer(window), (Layer*) HTLayer);
-	
-	HULayer = text_layer_create(GRect(HUX, 53, 50, 60));
-	text_layer_set_background_color(HULayer, GColorClear);
-	text_layer_set_text_color(HULayer, GColorWhite);
-	text_layer_set_font(HULayer, fonts_load_custom_font(f_handle));
-	text_layer_set_text_alignment(HULayer, GTextAlignmentRight);
-	layer_add_child(window_get_root_layer(window), (Layer*) HULayer);
-	
-	colonLayer = text_layer_create(GRect(69, 53, 50, 60));
-	text_layer_set_background_color(colonLayer, GColorClear);
-	text_layer_set_text_color(colonLayer, GColorWhite);
-	text_layer_set_font(colonLayer, fonts_load_custom_font(f_handle));
-	text_layer_set_text_alignment(colonLayer, GTextAlignmentLeft);
-	layer_add_child(window_get_root_layer(window), (Layer*) colonLayer);
-	
-	MTLayer = text_layer_create(GRect(MTX, 53, 50, 60));
-	text_layer_set_background_color(MTLayer, GColorClear);
-	text_layer_set_text_color(MTLayer, GColorWhite);
-	text_layer_set_font(MTLayer, fonts_load_custom_font(f_handle));
-	text_layer_set_text_alignment(MTLayer, GTextAlignmentRight);
-	layer_add_child(window_get_root_layer(window), (Layer*) MTLayer);
-	
-	MULayer = text_layer_create(GRect(MUX, 53, 50, 60));
-	text_layer_set_background_color(MULayer, GColorClear);
-	text_layer_set_text_color(MULayer, GColorWhite);
-	text_layer_set_font(MULayer, fonts_load_custom_font(f_handle));
-	text_layer_set_text_alignment(MULayer, GTextAlignmentRight);
-	layer_add_child(window_get_root_layer(window), (Layer*) MULayer);
+    h_t_layer = cl_init_text_layer(GRect(HTX, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+    layer_add_child(window_get_root_layer(window), text_layer_get_layer(h_t_layer));
+
+    h_u_layer = cl_init_text_layer(GRect(HUX, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+    layer_add_child(window_get_root_layer(window), text_layer_get_layer(h_u_layer));
+
+    colon_layer = cl_init_text_layer(GRect(68, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
+    layer_add_child(window_get_root_layer(window), text_layer_get_layer(colon_layer));
+
+    m_t_layer = cl_init_text_layer(GRect(MTX, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+    layer_add_child(window_get_root_layer(window), text_layer_get_layer(m_t_layer));
+
+    m_u_layer = cl_init_text_layer(GRect(MUX, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+    layer_add_child(window_get_root_layer(window), text_layer_get_layer(m_u_layer));
 	
 	//Allocate inverter layers
-	HTInvLayer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));	
-	HUInvLayer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));	
-	bottomInvLayer = inverter_layer_create(GRect(0, 0, 144, 0));
-	MTInvLayer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));	
-	MUInvLayer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));
+	h_t_inv_layer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));	
+	h_u_inv_layer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));	
+	bottom_inv_layer = inverter_layer_create(GRect(0, 0, 144, 0));
+	m_t_inv_layer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));	
+	m_u_inv_layer = inverter_layer_create(GRect(0, 0, INV_LAYER_WIDTH, 0));
 
-	layer_add_child(window_get_root_layer(window), (Layer*) HTInvLayer);	
-	layer_add_child(window_get_root_layer(window), (Layer*) HUInvLayer);
-	layer_add_child(window_get_root_layer(window), (Layer*) bottomInvLayer);
-	layer_add_child(window_get_root_layer(window), (Layer*) MTInvLayer);		
-	layer_add_child(window_get_root_layer(window), (Layer*) MUInvLayer);	
+	layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(h_t_inv_layer));	
+	layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(h_u_inv_layer));
+	layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(bottom_inv_layer));
+	layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(m_t_inv_layer));		
+	layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(m_u_inv_layer));	
 
-	
 	//Make sure the face is not blank
-	struct tm *t;
-	
-	time_t temp;	
-	temp = time(NULL);	
-	t = localtime(&temp);	
-	getTimeDigits(t);
+	time_t temp = time(NULL);	
+	struct tm *t = localtime(&temp);	
+	get_time_digits(t);
 	
 	//Stop 'all change' on first minute
-	MUprev = MUDigit;
-	MTprev = MTDigit;
-	HUprev = HUDigit;
-	HTprev = HTDigit;
+	m_u_prev = m_u_digit;
+	m_t_prev = m_t_digit;
+	h_u_prev = h_u_digit;
+	h_t_prev = h_t_digit;
 	
-	setTimeDigits();
+	set_time_digits();
+
+    //Init seconds bar
+    int seconds = t->tm_sec;
+    if(seconds >= 15 && seconds < 30)
+    {
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
+    }
+    else if(seconds >= 30 && seconds < 45)
+    {
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 0, 5), GRect(0, 105, 72, 5), 500, 0);
+    } 
+    else if(seconds >= 45 && seconds < 58)
+    {
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 0, 5), GRect(0, 105, 108, 5), 500, 0);
+    }   
+    else if(seconds >= 58)
+    {
+        cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 0, 5), GRect(0, 105, 144, 5), 500, 1000);
+    }
 }
 
 /*
@@ -214,18 +214,18 @@ static void window_load(Window *window) {
  */
 static void window_unload(Window *window) {	
 	//Free text layers
-	text_layer_destroy(HTLayer);
-	text_layer_destroy(HULayer);
-	text_layer_destroy(colonLayer);
-	text_layer_destroy(MTLayer);
-	text_layer_destroy(MULayer);
+	text_layer_destroy(h_t_layer);
+	text_layer_destroy(h_u_layer);
+	text_layer_destroy(colon_layer);
+	text_layer_destroy(m_t_layer);
+	text_layer_destroy(m_u_layer);
 	
 	//Free inverter layers
-	inverter_layer_destroy(HTInvLayer);
-	inverter_layer_destroy(HUInvLayer);
-	inverter_layer_destroy(bottomInvLayer);
-	inverter_layer_destroy(MTInvLayer);
-	inverter_layer_destroy(MUInvLayer);
+	inverter_layer_destroy(h_t_inv_layer);
+	inverter_layer_destroy(h_u_inv_layer);
+	inverter_layer_destroy(bottom_inv_layer);
+	inverter_layer_destroy(m_t_inv_layer);
+	inverter_layer_destroy(m_u_inv_layer);
 	
 	//Unsubscribe from events
 	tick_timer_service_unsubscribe();
@@ -246,7 +246,7 @@ static void init(void) {
 	tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
 	
 	//Finally
-  window_stack_push(window, true);
+    window_stack_push(window, true);
 }
 
 /*
@@ -273,116 +273,90 @@ int main(void) {
 /**
 	* Function to get time digits
 	*/
-void getTimeDigits(struct tm *t) 
+void get_time_digits(struct tm *t) 
 {
 	//Hour string
 	if(clock_is_24h_style())
-		strftime(hourText, sizeof(hourText), "%H", t);
+    {
+		strftime(time_text, sizeof("XX:XX"), "%H:%M", t);
+    }
 	else
-		strftime(hourText, sizeof(hourText), "%I", t);
-
-	//Minute string
-	strftime(minuteText, sizeof(minuteText), "%M", t);
+    {
+		strftime(time_text, sizeof("XX:XX"), "%I:%M", t);
+    }
 	
 	//Get digits
-	MUDigit = minuteText[1] - '0';
-	MTDigit = minuteText[0] - '0';
-	HUDigit = hourText[1] - '0';
-	HTDigit = hourText[0] - '0';
+	m_u_digit = time_text[4] - '0';  //Conv to int from char
+	m_t_digit = time_text[3] - '0';
+	h_u_digit = time_text[1] - '0';
+	h_t_digit = time_text[0] - '0';
 }
 
 /**
     * Function to set the time and date digits on the TextLayers
     */
-void setTimeDigits() 
-{
-    //Copy digits
-    HTText[0] = '0' + HTDigit;
-    HUText[0] = '0' + HUDigit;
-    MTText[0] = '0' + MTDigit;
-    MUText[0] = '0' + MUDigit;
-     
-    //Fix digits for debugging purposes
-    if(DEBUG) 
+void set_time_digits() 
+{  
+    if(DEBUG == false)
     {
-        HTText[0] = '2';
-        HUText[0] = '3';
-        MTText[0] = '5';
-        MUText[0] = '9';
+        //Include null chars
+        static char chars[4][2] = {"1", "2", "3", "4"};
+        chars[0][0] = time_text[4];
+        chars[1][0] = time_text[3];
+        chars[2][0] = time_text[1];
+        chars[3][0] = time_text[0];
+
+        //Set digits in TextLayers
+        text_layer_set_text(h_t_layer, chars[3]);
+        text_layer_set_text(h_u_layer, chars[2]);
+        text_layer_set_text(colon_layer, ":");
+        text_layer_set_text(m_t_layer, chars[1]);
+        text_layer_set_text(m_u_layer, chars[0]);
     }
-    
-    //Set digits in TextLayers
-    text_layer_set_text(HTLayer, HTText);
-    text_layer_set_text(HULayer, HUText);
-    text_layer_set_text(colonLayer, colonText);
-    text_layer_set_text(MTLayer, MTText);
-    text_layer_set_text(MULayer, MUText);
+    else
+    {
+        text_layer_set_text(h_t_layer, "2");
+        text_layer_set_text(h_u_layer, "3");
+        text_layer_set_text(colon_layer, ":");
+        text_layer_set_text(m_t_layer, "5");
+        text_layer_set_text(m_u_layer, "9");
+    }
 }
 
 /**
     * Function to predict digit changes to make the digit change mechanic fire correctly.
-    * If the values change at seconds == 0, then the animations depending on MUDigit != MUprev
+    * If the values change at seconds == 0, then the animations depending on m_u_digit != m_u_prev
     * will not fire! 
     * The solution is to advance the ones about to change pre-emptively
     */
-void predictNextDigits(struct tm *t) {
+void predict_next_digits(struct tm *t) {
     //These will be for the previous minute at 59 seconds
-    getTimeDigits(t);
+    get_time_digits(t);
      
     //Fix hours tens
     if
     (
-       ((HTDigit == 0) && (HUDigit == 9) && (MTDigit == 5) && (MUDigit == 9)) //09:59 --> 10:00
-    || ((HTDigit == 1) && (HUDigit == 9) && (MTDigit == 5) && (MUDigit == 9))   //19:59 --> 20:00
-    || ((HTDigit == 2) && (HUDigit == 3) && (MTDigit == 5) && (MUDigit == 9))   //23:59 --> 00:00
+       ((h_t_digit == 0) && (h_u_digit == 9) && (m_t_digit == 5) && (m_u_digit == 9)) //09:59 --> 10:00
+    || ((h_t_digit == 1) && (h_u_digit == 9) && (m_t_digit == 5) && (m_u_digit == 9))   //19:59 --> 20:00
+    || ((h_t_digit == 2) && (h_u_digit == 3) && (m_t_digit == 5) && (m_u_digit == 9))   //23:59 --> 00:00
     )
     {
-        HTDigit++;
+        h_t_digit++;
     }
  
     //Fix hours units
-    if((MTDigit == 5) && (MUDigit == 9))
+    if((m_t_digit == 5) && (m_u_digit == 9))
     {
-        HUDigit++;
+        h_u_digit++;
     }
  
     //Fix minutes tens
-    if(MUDigit == 9)    //Minutes Tens about to change
+    if(m_u_digit == 9)    //Minutes Tens about to change
     {
-        MTDigit++;
+        m_t_digit++;
     }
          
     //Finally fix minutes units
-    MUDigit++;
-}
-
-/**
- * New dymanic animations
- */
-void on_animation_stopped(Animation *anim, bool finished, void *context)
-{
-	//Free the memoery used by the Animation
-	property_animation_destroy((PropertyAnimation*) anim);
-}
-
-void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay)
-{
-	//Declare animation
-	PropertyAnimation *anim = property_animation_create_layer_frame(layer, &start, &finish);
-	
-	//Set characteristics
-	animation_set_duration((Animation*) anim, duration);
-	animation_set_delay((Animation*) anim, delay);
-	animation_set_curve((Animation*) anim, AnimationCurveEaseInOut);
-	
-	//Set stopped handler to free memory
-	AnimationHandlers handlers = {
-		//The reference to the stopped handler is the only one in the array
-		.stopped = (AnimationStoppedHandler) on_animation_stopped
-	};
-	animation_set_handlers((Animation*) anim, handlers, NULL);
-	
-	//Start animation!
-	animation_schedule((Animation*) anim);
+    m_u_digit++;
 }
 
