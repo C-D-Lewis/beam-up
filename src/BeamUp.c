@@ -62,28 +62,28 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         //Only change minutes units if its changed
         if((m_u_digit != m_u_prev) || (DEBUG)) 
         {
-            cl_animate_layer(inverter_layer_get_layer(m_u_inv_layer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            cl_animate_layer(inverter_layer_get_layer(m_u_inv_layer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 400, 0);
             cl_animate_layer(text_layer_get_layer(m_u_layer), GRect(MUX, 53, 50, 60), GRect(MUX, -50, 50, 60), 200, 700);
         }
          
         //Only change minutes tens if its changed
         if((m_t_digit != m_t_prev) || (DEBUG)) 
         {
-            cl_animate_layer(inverter_layer_get_layer(m_t_inv_layer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            cl_animate_layer(inverter_layer_get_layer(m_t_inv_layer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 400, 0);
             cl_animate_layer(text_layer_get_layer(m_t_layer), GRect(MTX, 53, 50, 60), GRect(MTX, -50, 50, 60), 200, 700);
         }
          
         //Only change hours units if its changed
         if((h_u_digit != h_u_prev) || (DEBUG)) 
         {
-            cl_animate_layer(inverter_layer_get_layer(h_u_inv_layer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            cl_animate_layer(inverter_layer_get_layer(h_u_inv_layer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 400, 0);
             cl_animate_layer(text_layer_get_layer(h_u_layer), GRect(HUX, 53, 50, 60), GRect(HUX, -50, 50, 60), 200, 700);
         }
          
         //Only change hours tens if its changed
         if((h_t_digit != h_t_prev) || (DEBUG)) 
         {
-            cl_animate_layer(inverter_layer_get_layer(h_t_inv_layer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 600, 0);
+            cl_animate_layer(inverter_layer_get_layer(h_t_inv_layer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), 400, 0);
             cl_animate_layer(text_layer_get_layer(h_t_layer), GRect(HTX, 53, 50, 60), GRect(HTX, -50, 50, 60), 200, 700);
         }
         break;
@@ -97,25 +97,25 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         if((m_u_digit != m_u_prev) || (DEBUG)) 
         {       
             cl_animate_layer(text_layer_get_layer(m_u_layer), GRect(MUX, -50, 50, 60), GRect(MUX, 53, 50, 60), 200, 100);
-            cl_animate_layer(inverter_layer_get_layer(m_u_inv_layer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            cl_animate_layer(inverter_layer_get_layer(m_u_inv_layer), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 400, 500);
             m_u_prev = m_u_digit;   //reset the thing
         }
         if((m_t_digit != m_t_prev) || (DEBUG)) 
         {
             cl_animate_layer(text_layer_get_layer(m_t_layer), GRect(MTX, -50, 50, 60), GRect(MTX, 53, 50, 60), 200, 100);
-            cl_animate_layer(inverter_layer_get_layer(m_t_inv_layer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            cl_animate_layer(inverter_layer_get_layer(m_t_inv_layer), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(MTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 400, 500);
             m_t_prev = m_t_digit;   
         }
         if((h_u_digit != h_u_prev) || (DEBUG)) 
         {       
             cl_animate_layer(text_layer_get_layer(h_u_layer), GRect(HUX, -50, 50, 60), GRect(HUX, 53, 50, 60), 200, 100);
-            cl_animate_layer(inverter_layer_get_layer(h_u_inv_layer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            cl_animate_layer(inverter_layer_get_layer(h_u_inv_layer), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HUX+OFFSET, 0, INV_LAYER_WIDTH, 0), 400, 500);
             h_u_prev = h_u_digit;   
         }
         if((h_t_digit != h_t_prev) || (DEBUG)) 
         {
             cl_animate_layer(text_layer_get_layer(h_t_layer), GRect(HTX, -50, 50, 60), GRect(HTX, 53, 50, 60), 200, 100);
-            cl_animate_layer(inverter_layer_get_layer(h_t_inv_layer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 500, 500);
+            cl_animate_layer(inverter_layer_get_layer(h_t_inv_layer), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, INV_LAYER_HEIGHT), GRect(HTX+OFFSET, 0, INV_LAYER_WIDTH, 0), 400, 500);
             h_t_prev = h_t_digit;   
         }
          
@@ -123,17 +123,33 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         cl_animate_layer(inverter_layer_get_layer(bottom_inv_layer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
         break;
     case 2:
-    	//Reset InverterLayers
-    	layer_set_frame(inverter_layer_get_layer(h_t_inv_layer), GRect(0, 0, 0, 0));
-    	layer_set_frame(inverter_layer_get_layer(h_u_inv_layer), GRect(0, 0, 0, 0));
-    	layer_set_frame(inverter_layer_get_layer(m_t_inv_layer), GRect(0, 0, 0, 0));
-    	layer_set_frame(inverter_layer_get_layer(m_u_inv_layer), GRect(0, 0, 0, 0));
-
     	//Reset TextLayers to show time
+        layer_remove_from_parent(text_layer_get_layer(h_t_layer));
+        layer_remove_from_parent(text_layer_get_layer(h_u_layer));
+        layer_remove_from_parent(text_layer_get_layer(m_t_layer));
+        layer_remove_from_parent(text_layer_get_layer(m_u_layer));
+        layer_add_child(window_get_root_layer(window), text_layer_get_layer(h_t_layer));
+        layer_add_child(window_get_root_layer(window), text_layer_get_layer(h_u_layer));
+        layer_add_child(window_get_root_layer(window), text_layer_get_layer(m_t_layer));
+        layer_add_child(window_get_root_layer(window), text_layer_get_layer(m_u_layer));
     	layer_set_frame(text_layer_get_layer(h_t_layer), GRect(HTX, 53, 50, 60));
     	layer_set_frame(text_layer_get_layer(h_u_layer), GRect(HUX, 53, 50, 60));
     	layer_set_frame(text_layer_get_layer(m_t_layer), GRect(MTX, 53, 50, 60));
     	layer_set_frame(text_layer_get_layer(m_u_layer), GRect(MUX, 53, 50, 60));
+
+        //Reset InverterLayers
+        layer_remove_from_parent(inverter_layer_get_layer(h_t_inv_layer));
+        layer_remove_from_parent(inverter_layer_get_layer(h_u_inv_layer));
+        layer_remove_from_parent(inverter_layer_get_layer(m_t_inv_layer));
+        layer_remove_from_parent(inverter_layer_get_layer(m_u_inv_layer));
+        layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(h_t_inv_layer));
+        layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(h_u_inv_layer));
+        layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(m_t_inv_layer));
+        layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(m_u_inv_layer));
+        layer_set_frame(inverter_layer_get_layer(h_t_inv_layer), GRect(0, 0, 0, 0));
+        layer_set_frame(inverter_layer_get_layer(h_u_inv_layer), GRect(0, 0, 0, 0));
+        layer_set_frame(inverter_layer_get_layer(m_t_inv_layer), GRect(0, 0, 0, 0));
+        layer_set_frame(inverter_layer_get_layer(m_u_inv_layer), GRect(0, 0, 0, 0));
 
         //Get the time
         set_time_digits(t);

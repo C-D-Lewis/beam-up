@@ -1,11 +1,11 @@
 {
-	"versionLabel": "2.1.0",
+	"versionLabel": "2.1.1",
 	"uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
 	"appKeys": {
 		"dummy": 0
 	},
 	"longName": "Beam Up",
-	"versionCode": 5,
+	"versionCode": 6,
 	"shortName": "BeamUp",
 	"companyName": "Chris Lewis",
 	"watchapp": {
