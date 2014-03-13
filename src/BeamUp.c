@@ -1,7 +1,7 @@
 /**
 	* Beam Up Pebble Watchface
 	* Author: Chris Lewis
-	* Date: 11th March 2014
+	* Date: 12th March 2014
 	*/
 
 #include <pebble.h>
@@ -124,7 +124,7 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         break;
     case 2:
     	//Reset TextLayers to show time
-        layer_remove_from_parent(text_layer_get_layer(h_t_layer));
+/*        layer_remove_from_parent(text_layer_get_layer(h_t_layer));
         layer_remove_from_parent(text_layer_get_layer(h_u_layer));
         layer_remove_from_parent(text_layer_get_layer(m_t_layer));
         layer_remove_from_parent(text_layer_get_layer(m_u_layer));
@@ -132,13 +132,13 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         layer_add_child(window_get_root_layer(window), text_layer_get_layer(h_u_layer));
         layer_add_child(window_get_root_layer(window), text_layer_get_layer(m_t_layer));
         layer_add_child(window_get_root_layer(window), text_layer_get_layer(m_u_layer));
-    	layer_set_frame(text_layer_get_layer(h_t_layer), GRect(HTX, 53, 50, 60));
+*/    	layer_set_frame(text_layer_get_layer(h_t_layer), GRect(HTX, 53, 50, 60));
     	layer_set_frame(text_layer_get_layer(h_u_layer), GRect(HUX, 53, 50, 60));
     	layer_set_frame(text_layer_get_layer(m_t_layer), GRect(MTX, 53, 50, 60));
     	layer_set_frame(text_layer_get_layer(m_u_layer), GRect(MUX, 53, 50, 60));
 
         //Reset InverterLayers
-        layer_remove_from_parent(inverter_layer_get_layer(h_t_inv_layer));
+/*        layer_remove_from_parent(inverter_layer_get_layer(h_t_inv_layer));
         layer_remove_from_parent(inverter_layer_get_layer(h_u_inv_layer));
         layer_remove_from_parent(inverter_layer_get_layer(m_t_inv_layer));
         layer_remove_from_parent(inverter_layer_get_layer(m_u_inv_layer));
@@ -146,7 +146,7 @@ static void handle_tick(struct tm *t, TimeUnits units_changed)
         layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(h_u_inv_layer));
         layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(m_t_inv_layer));
         layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(m_u_inv_layer));
-        layer_set_frame(inverter_layer_get_layer(h_t_inv_layer), GRect(0, 0, 0, 0));
+*/        layer_set_frame(inverter_layer_get_layer(h_t_inv_layer), GRect(0, 0, 0, 0));
         layer_set_frame(inverter_layer_get_layer(h_u_inv_layer), GRect(0, 0, 0, 0));
         layer_set_frame(inverter_layer_get_layer(m_t_inv_layer), GRect(0, 0, 0, 0));
         layer_set_frame(inverter_layer_get_layer(m_u_inv_layer), GRect(0, 0, 0, 0));
