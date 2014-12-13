@@ -123,3 +123,65 @@ void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int de
   
   animation_schedule((Animation*) anim);
 }
+
+void interpret_message_result(AppMessageResult app_message_error) {
+  if(app_message_error == APP_MSG_OK)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_OK");
+  } 
+
+  else if(app_message_error == APP_MSG_SEND_TIMEOUT)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_SEND_TIMEOUT");
+  } 
+
+  else if(app_message_error == APP_MSG_SEND_REJECTED)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_SEND_REJECTED");
+  }
+
+  else if(app_message_error == APP_MSG_NOT_CONNECTED)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_NOT_CONNECTED");
+  }
+
+  else if(app_message_error == APP_MSG_APP_NOT_RUNNING)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_APP_NOT_RUNNING");
+  }
+
+  else if(app_message_error == APP_MSG_INVALID_ARGS)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_INVALID_ARGS");
+  }
+
+  else if(app_message_error == APP_MSG_BUSY)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_BUSY");
+  }
+
+  else if(app_message_error == APP_MSG_BUFFER_OVERFLOW)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_BUFFER_OVERFLOW");
+  }
+
+  else if(app_message_error == APP_MSG_ALREADY_RELEASED)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_ALREADY_RELEASED");
+  }
+
+  else if(app_message_error == APP_MSG_CALLBACK_ALREADY_REGISTERED)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_CALLBACK_ALREADY_REGISTERED");
+  }
+
+  else if(app_message_error == APP_MSG_CALLBACK_NOT_REGISTERED)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_CALLBACK_NOT_REGISTERED");
+  }
+
+  else if(app_message_error == APP_MSG_OUT_OF_MEMORY)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_OUT_OF_MEMORY");
+  }
+}

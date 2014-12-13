@@ -80,10 +80,13 @@
       submitButton.addEventListener("click", 
         function() {
           var options = {
-          "PERSIST_KEY_INVERTED": document.getElementById("check_inverted").checked,
-          "PERSIST_KEY_DATE": document.getElementById("check_date").checked,
-          "PERSIST_KEY_NO_ANIM": !document.getElementById("check_animations").checked
-          };
+            "inverted": document.getElementById("check_inverted").checked ? 'true' : 'false',
+            "date": document.getElementById("check_date").checked ? 'true' : 'false',
+            "animations": document.getElementById("check_animations").checked ? 'true' : 'false',
+            "bluetooth": document.getElementById("check_bluetooth").checked ? 'true' : 'false',
+            "battery": document.getElementById("check_battery").checked ? 'true' : 'false',
+            "hourly": document.getElementById("check_hourly").checked ? 'true' : 'false'
+          };  
           var location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
            
           document.location = location;

@@ -7,6 +7,7 @@
 
 // Global prototypes
 TextLayer *s_digits[5];
+TextLayer *s_date_layer;
 int s_state_now[4];
 int s_state_prev[4];
 char s_time_buffer[5];
@@ -16,6 +17,8 @@ static Window *s_main_window;
 static InverterLayer *s_beams[4];
 static InverterLayer *s_seconds_layer, *s_inverter_layer;
 
+static bool do_animations;
+
 static void handle_tick(struct tm *t, TimeUnits units_changed) {  
   // Get the time
   int seconds = t->tm_sec;
@@ -24,110 +27,109 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
   switch(seconds) {
     // Beam Up!
     case 0:    
-        write_time_digits(t);
-         
-        // Set the time off screen
-        show_time_digits(); 
-     
-        // Animate stuff back into place
-        if((s_state_now[3] != s_state_prev[3]) || (DEBUG_MODE)) {     
-          animate_layer(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, -50, 50, 60), GRect(MINS_UNITS_X, 53, 50, 60), 200, 100);
-          animate_layer(inverter_layer_get_layer(s_beams[3]), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-          s_state_prev[3] = s_state_now[3];   // reset the thing
-        }
-        if((s_state_now[2] != s_state_prev[2]) || (DEBUG_MODE)) {
-          animate_layer(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, -50, 50, 60), GRect(MINS_TENS_X, 53, 50, 60), 200, 100);
-          animate_layer(inverter_layer_get_layer(s_beams[2]), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-          s_state_prev[2] = s_state_now[2];   
-        }
-        if((s_state_now[1] != s_state_prev[1]) || (DEBUG_MODE)) {     
-          animate_layer(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, -50, 50, 60), GRect(HOURS_UNITS_X, 53, 50, 60), 200, 100);
-          animate_layer(inverter_layer_get_layer(s_beams[1]), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-          s_state_prev[1] = s_state_now[1];   
-        }
-        if((s_state_now[0] != s_state_prev[0]) || (DEBUG_MODE)) {
-          animate_layer(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, -50, 50, 60), GRect(HOUR_TENS_X, 53, 50, 60), 200, 100);
-          animate_layer(inverter_layer_get_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-          s_state_prev[0] = s_state_now[0];   
-        }
-         
-        // Bottom surface down
-        animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
-        break;
+      write_time_digits(t);
+       
+      // Set the time off screen
+      show_time_digits(); 
+   
+      // Animate stuff back into place
+      if((s_state_now[3] != s_state_prev[3]) || (DEBUG_MODE)) {     
+        animate_layer(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, -50, 50, 60), GRect(MINS_UNITS_X, 53, 50, 60), 200, 100);
+        animate_layer(inverter_layer_get_layer(s_beams[3]), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
+        s_state_prev[3] = s_state_now[3];   // reset the thing
+      }
+      if((s_state_now[2] != s_state_prev[2]) || (DEBUG_MODE)) {
+        animate_layer(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, -50, 50, 60), GRect(MINS_TENS_X, 53, 50, 60), 200, 100);
+        animate_layer(inverter_layer_get_layer(s_beams[2]), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
+        s_state_prev[2] = s_state_now[2];   
+      }
+      if((s_state_now[1] != s_state_prev[1]) || (DEBUG_MODE)) {     
+        animate_layer(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, -50, 50, 60), GRect(HOURS_UNITS_X, 53, 50, 60), 200, 100);
+        animate_layer(inverter_layer_get_layer(s_beams[1]), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
+        s_state_prev[1] = s_state_now[1];   
+      }
+      if((s_state_now[0] != s_state_prev[0]) || (DEBUG_MODE)) {
+        animate_layer(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, -50, 50, 60), GRect(HOUR_TENS_X, 53, 50, 60), 200, 100);
+        animate_layer(inverter_layer_get_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
+        s_state_prev[0] = s_state_now[0];   
+      }
+       
+      // Bottom surface down
+      animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
+      break;
 
-      // Safetly for bad animation at t=2s
-      case 2:
-        // Reset TextLayers to show time
-        layer_set_frame(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60));
-        layer_set_frame(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60));
-        layer_set_frame(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, 53, 50, 60));
-        layer_set_frame(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60));
+    // Safetly for bad animation at t=2s
+    case 2:
+      // Reset TextLayers to show time
+      layer_set_frame(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60));
+      layer_set_frame(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60));
+      layer_set_frame(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, 53, 50, 60));
+      layer_set_frame(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60));
 
-        // Reset InverterLayers
-        layer_set_frame(inverter_layer_get_layer(s_beams[0]), GRect(0, 0, 0, 0));
-        layer_set_frame(inverter_layer_get_layer(s_beams[1]), GRect(0, 0, 0, 0));
-        layer_set_frame(inverter_layer_get_layer(s_beams[2]), GRect(0, 0, 0, 0));
-        layer_set_frame(inverter_layer_get_layer(s_beams[3]), GRect(0, 0, 0, 0));
+      // Reset InverterLayers
+      layer_set_frame(inverter_layer_get_layer(s_beams[0]), GRect(0, 0, 0, 0));
+      layer_set_frame(inverter_layer_get_layer(s_beams[1]), GRect(0, 0, 0, 0));
+      layer_set_frame(inverter_layer_get_layer(s_beams[2]), GRect(0, 0, 0, 0));
+      layer_set_frame(inverter_layer_get_layer(s_beams[3]), GRect(0, 0, 0, 0));
 
-        // Get the time
-        show_time_digits(t);
-        break;
+      // Get the time
+      show_time_digits(t);
+      break;
 
-      // 15 seconds bar
-      case 15:
-        animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
-        break;
+    // 15 seconds bar
+    case 15:
+      animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
+      break;
 
-      // 30 seconds bar
-      case 30:
-        animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
-        break;
+    // 30 seconds bar
+    case 30:
+      animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
+      break;
 
-      // 45 seconds bar
-      case 45:
-        animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
-        break;
+    // 45 seconds bar
+    case 45:
+      animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
+      break;
 
-      // Complete bar
-      case 58:
-        animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
-        break;
+    // Complete bar
+    case 58:
+      animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
+      break;
 
-      // Beam down
-      case 59:
-        // Predict next changes
-        predict_next_change(t); // CALLS write_time_digits()
-         
-        // Only change minutes units if its changed
-        if((s_state_now[3] != s_state_prev[3]) || (DEBUG_MODE)) {
-          animate_layer(inverter_layer_get_layer(s_beams[3]), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
-          animate_layer(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60), GRect(MINS_UNITS_X, -50, 50, 60), 200, 700);
-        }
-         
-        // Only change minutes tens if its changed
-        if((s_state_now[2] != s_state_prev[2]) || (DEBUG_MODE)) {
-          animate_layer(inverter_layer_get_layer(s_beams[2]), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
-          animate_layer(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, 53, 50, 60), GRect(MINS_TENS_X, -50, 50, 60), 200, 700);
-        }
-         
-        // Only change hours units if its changed
-        if((s_state_now[1] != s_state_prev[1]) || (DEBUG_MODE)) {
-          animate_layer(inverter_layer_get_layer(s_beams[1]), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
-          animate_layer(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60), GRect(HOURS_UNITS_X, -50, 50, 60), 200, 700);
-        }
-         
-        // Only change hours tens if its changed
-        if((s_state_now[0] != s_state_prev[0]) || (DEBUG_MODE)) {
-          animate_layer(inverter_layer_get_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
-          animate_layer(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60), GRect(HOUR_TENS_X, -50, 50, 60), 200, 700);
-        }
-        break;      
+    // Beam down
+    case 59:
+      // Predict next changes
+      predict_next_change(t); // CALLS write_time_digits()
+       
+      // Only change minutes units if its changed
+      if((s_state_now[3] != s_state_prev[3]) || (DEBUG_MODE)) {
+        animate_layer(inverter_layer_get_layer(s_beams[3]), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
+        animate_layer(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60), GRect(MINS_UNITS_X, -50, 50, 60), 200, 700);
+      }
+       
+      // Only change minutes tens if its changed
+      if((s_state_now[2] != s_state_prev[2]) || (DEBUG_MODE)) {
+        animate_layer(inverter_layer_get_layer(s_beams[2]), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
+        animate_layer(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, 53, 50, 60), GRect(MINS_TENS_X, -50, 50, 60), 200, 700);
+      }
+       
+      // Only change hours units if its changed
+      if((s_state_now[1] != s_state_prev[1]) || (DEBUG_MODE)) {
+        animate_layer(inverter_layer_get_layer(s_beams[1]), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
+        animate_layer(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60), GRect(HOURS_UNITS_X, -50, 50, 60), 200, 700);
+      }
+       
+      // Only change hours tens if its changed
+      if((s_state_now[0] != s_state_prev[0]) || (DEBUG_MODE)) {
+        animate_layer(inverter_layer_get_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
+        animate_layer(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60), GRect(HOUR_TENS_X, -50, 50, 60), 200, 700);
+      }
+      break;      
   }
 }
 
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
-
   
   // Allocate text layers
   s_digits[0] = gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
@@ -183,6 +185,7 @@ static void window_load(Window *window) {
   if(comm_get_setting(PERSIST_KEY_INVERTED)) {
     layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
   }
+  do_animations = comm_get_setting(PERSIST_KEY_ANIM);
 }
 
 static void window_unload(Window *window) {  

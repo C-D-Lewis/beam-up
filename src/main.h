@@ -16,13 +16,14 @@
 // Settings keys
 #define PERSIST_KEY_INVERTED 0
 #define PERSIST_KEY_DATE     1
-#define PERSIST_KEY_NO_ANIM  2
+#define PERSIST_KEY_ANIM     2
 #define PERSIST_KEY_BT       3
 #define PERSIST_KEY_BATTERY  4
 #define PERSIST_KEY_HOURLY   5
 
 // Globals
 extern TextLayer *s_digits[5];
+extern TextLayer *s_date_layer;
 extern char s_time_buffer[5];
 extern int s_state_now[4];
 extern int s_state_prev[4];

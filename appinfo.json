@@ -1,6 +1,16 @@
 {
 	"versionLabel": "2.3",
 	"uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
+	"longName": "Beam Up",
+	"versionCode": 8,
+	"shortName": "Beam Up",
+	"companyName": "Chris Lewis",
+	"watchapp": {
+		"watchface": true
+	},
+	"capabilities": [
+		"configurable"
+	],
 	"appKeys": {
 		"PERSIST_KEY_INVERTED": 0,
 		"PERSIST_KEY_DATE": 1,
@@ -9,16 +19,6 @@
 		"PERSIST_KEY_BATTERY": 4,
 		"PERSIST_KEY_HOURLY": 5
 	},
-	"longName": "Beam Up",
-	"versionCode": 8,
-	"shortName": "BeamUp",
-	"companyName": "Chris Lewis",
-	"watchapp": {
-		"watchface": true
-	},
-	"capabilities": [
-		"configurable"
-	],
 	"resources": {
 		"media": [
 			{
