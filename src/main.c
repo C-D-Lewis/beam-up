@@ -6,18 +6,18 @@
 #include "main.h"
 
 // Global prototypes
-TextLayer *s_digits[5];
-TextLayer *s_date_layer;
-int s_state_now[4];
-int s_state_prev[4];
-char s_time_buffer[5];
+TextLayer *g_digits[5];
+TextLayer *g_date_layer;
+int g_state_now[4];
+int g_state_prev[4];
+char g_time_buffer[5];
+char g_date_buffer[8];
+bool g_do_animations;
 
 // UI elements
 static Window *s_main_window;
 static InverterLayer *s_beams[4];
 static InverterLayer *s_seconds_layer, *s_inverter_layer;
-
-static bool do_animations;
 
 static void handle_tick(struct tm *t, TimeUnits units_changed) {  
   // Get the time
@@ -33,25 +33,25 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
       show_time_digits(); 
    
       // Animate stuff back into place
-      if((s_state_now[3] != s_state_prev[3]) || (DEBUG_MODE)) {     
-        animate_layer(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, -50, 50, 60), GRect(MINS_UNITS_X, 53, 50, 60), 200, 100);
+      if((g_state_now[3] != g_state_prev[3]) || (DEBUG_MODE)) {     
+        animate_layer(text_layer_get_layer(g_digits[4]), GRect(MINS_UNITS_X, -50, 50, 60), GRect(MINS_UNITS_X, 53, 50, 60), 200, 100);
         animate_layer(inverter_layer_get_layer(s_beams[3]), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-        s_state_prev[3] = s_state_now[3];   // reset the thing
+        g_state_prev[3] = g_state_now[3];   // reset the thing
       }
-      if((s_state_now[2] != s_state_prev[2]) || (DEBUG_MODE)) {
-        animate_layer(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, -50, 50, 60), GRect(MINS_TENS_X, 53, 50, 60), 200, 100);
+      if((g_state_now[2] != g_state_prev[2]) || (DEBUG_MODE)) {
+        animate_layer(text_layer_get_layer(g_digits[3]), GRect(MINS_TENS_X, -50, 50, 60), GRect(MINS_TENS_X, 53, 50, 60), 200, 100);
         animate_layer(inverter_layer_get_layer(s_beams[2]), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-        s_state_prev[2] = s_state_now[2];   
+        g_state_prev[2] = g_state_now[2];   
       }
-      if((s_state_now[1] != s_state_prev[1]) || (DEBUG_MODE)) {     
-        animate_layer(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, -50, 50, 60), GRect(HOURS_UNITS_X, 53, 50, 60), 200, 100);
+      if((g_state_now[1] != g_state_prev[1]) || (DEBUG_MODE)) {     
+        animate_layer(text_layer_get_layer(g_digits[1]), GRect(HOURS_UNITS_X, -50, 50, 60), GRect(HOURS_UNITS_X, 53, 50, 60), 200, 100);
         animate_layer(inverter_layer_get_layer(s_beams[1]), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-        s_state_prev[1] = s_state_now[1];   
+        g_state_prev[1] = g_state_now[1];   
       }
-      if((s_state_now[0] != s_state_prev[0]) || (DEBUG_MODE)) {
-        animate_layer(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, -50, 50, 60), GRect(HOUR_TENS_X, 53, 50, 60), 200, 100);
+      if((g_state_now[0] != g_state_prev[0]) || (DEBUG_MODE)) {
+        animate_layer(text_layer_get_layer(g_digits[0]), GRect(HOUR_TENS_X, -50, 50, 60), GRect(HOUR_TENS_X, 53, 50, 60), 200, 100);
         animate_layer(inverter_layer_get_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-        s_state_prev[0] = s_state_now[0];   
+        g_state_prev[0] = g_state_now[0];   
       }
        
       // Bottom surface down
@@ -61,10 +61,10 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
     // Safetly for bad animation at t=2s
     case 2:
       // Reset TextLayers to show time
-      layer_set_frame(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60));
-      layer_set_frame(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60));
-      layer_set_frame(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, 53, 50, 60));
-      layer_set_frame(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60));
+      layer_set_frame(text_layer_get_layer(g_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60));
+      layer_set_frame(text_layer_get_layer(g_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60));
+      layer_set_frame(text_layer_get_layer(g_digits[3]), GRect(MINS_TENS_X, 53, 50, 60));
+      layer_set_frame(text_layer_get_layer(g_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60));
 
       // Reset InverterLayers
       layer_set_frame(inverter_layer_get_layer(s_beams[0]), GRect(0, 0, 0, 0));
@@ -102,27 +102,27 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
       predict_next_change(t); // CALLS write_time_digits()
        
       // Only change minutes units if its changed
-      if((s_state_now[3] != s_state_prev[3]) || (DEBUG_MODE)) {
+      if((g_state_now[3] != g_state_prev[3]) || (DEBUG_MODE)) {
         animate_layer(inverter_layer_get_layer(s_beams[3]), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
-        animate_layer(text_layer_get_layer(s_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60), GRect(MINS_UNITS_X, -50, 50, 60), 200, 700);
+        animate_layer(text_layer_get_layer(g_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60), GRect(MINS_UNITS_X, -50, 50, 60), 200, 700);
       }
        
       // Only change minutes tens if its changed
-      if((s_state_now[2] != s_state_prev[2]) || (DEBUG_MODE)) {
+      if((g_state_now[2] != g_state_prev[2]) || (DEBUG_MODE)) {
         animate_layer(inverter_layer_get_layer(s_beams[2]), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
-        animate_layer(text_layer_get_layer(s_digits[3]), GRect(MINS_TENS_X, 53, 50, 60), GRect(MINS_TENS_X, -50, 50, 60), 200, 700);
+        animate_layer(text_layer_get_layer(g_digits[3]), GRect(MINS_TENS_X, 53, 50, 60), GRect(MINS_TENS_X, -50, 50, 60), 200, 700);
       }
        
       // Only change hours units if its changed
-      if((s_state_now[1] != s_state_prev[1]) || (DEBUG_MODE)) {
+      if((g_state_now[1] != g_state_prev[1]) || (DEBUG_MODE)) {
         animate_layer(inverter_layer_get_layer(s_beams[1]), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
-        animate_layer(text_layer_get_layer(s_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60), GRect(HOURS_UNITS_X, -50, 50, 60), 200, 700);
+        animate_layer(text_layer_get_layer(g_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60), GRect(HOURS_UNITS_X, -50, 50, 60), 200, 700);
       }
        
       // Only change hours tens if its changed
-      if((s_state_now[0] != s_state_prev[0]) || (DEBUG_MODE)) {
+      if((g_state_now[0] != g_state_prev[0]) || (DEBUG_MODE)) {
         animate_layer(inverter_layer_get_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
-        animate_layer(text_layer_get_layer(s_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60), GRect(HOUR_TENS_X, -50, 50, 60), 200, 700);
+        animate_layer(text_layer_get_layer(g_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60), GRect(HOUR_TENS_X, -50, 50, 60), 200, 700);
       }
       break;      
   }
@@ -132,21 +132,21 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   
   // Allocate text layers
-  s_digits[0] = gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
-  layer_add_child(window_layer, text_layer_get_layer(s_digits[0]));
+  g_digits[0] = gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  layer_add_child(window_layer, text_layer_get_layer(g_digits[0]));
 
-  s_digits[1] = gen_text_layer(GRect(HOURS_UNITS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
-  layer_add_child(window_layer, text_layer_get_layer(s_digits[1]));
+  g_digits[1] = gen_text_layer(GRect(HOURS_UNITS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  layer_add_child(window_layer, text_layer_get_layer(g_digits[1]));
 
-  s_digits[2] = gen_text_layer(GRect(68, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
-  layer_add_child(window_layer, text_layer_get_layer(s_digits[2]));
+  g_digits[2] = gen_text_layer(GRect(68, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
+  layer_add_child(window_layer, text_layer_get_layer(g_digits[2]));
 
-  s_digits[3] = gen_text_layer(GRect(MINS_TENS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
-  layer_add_child(window_layer, text_layer_get_layer(s_digits[3]));
+  g_digits[3] = gen_text_layer(GRect(MINS_TENS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  layer_add_child(window_layer, text_layer_get_layer(g_digits[3]));
 
-  s_digits[4] = gen_text_layer(GRect(MINS_UNITS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
-  layer_add_child(window_layer, text_layer_get_layer(s_digits[4]));
-  
+  g_digits[4] = gen_text_layer(GRect(MINS_UNITS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  layer_add_child(window_layer, text_layer_get_layer(g_digits[4]));
+
   // Allocate inverter layers
   for(int i = 0; i < 4; i++) {
     s_beams[i] = inverter_layer_create(GRect(0, 0, BEAM_WIDTH, 0));
@@ -162,7 +162,18 @@ static void window_load(Window *window) {
   
   // Stop 'all change' on firsinute
   for(int i = 0; i < 4; i++) {
-    s_state_prev[i] = s_state_now[i];
+    g_state_prev[i] = g_state_now[i];
+  }
+
+  // User settings
+  s_inverter_layer = inverter_layer_create(GRect(0, 0, 144, 168));
+  if(comm_get_setting(PERSIST_KEY_INVERTED)) {
+    layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
+  }
+  g_do_animations = comm_get_setting(PERSIST_KEY_ANIM);
+  g_date_layer = gen_text_layer(GRect(45, 105, 100, 30), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
+  if(comm_get_setting(PERSIST_KEY_DATE)) {
+    layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
   }
 
   // Set time digits now  
@@ -179,42 +190,32 @@ static void window_load(Window *window) {
   } else if(seconds >= 58) {
     animate_layer(inverter_layer_get_layer(s_seconds_layer), GRect(0, 105, 0, 5), GRect(0, 105, 144, 5), 500, 1000);
   }
-
-  // User settings
-  s_inverter_layer = inverter_layer_create(GRect(0, 0, 144, 168));
-  if(comm_get_setting(PERSIST_KEY_INVERTED)) {
-    layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
-  }
-  do_animations = comm_get_setting(PERSIST_KEY_ANIM);
 }
 
 static void window_unload(Window *window) {  
   // Free text layers
   for(int i = 0; i < 5; i++) {
-    if(s_digits[i]) {
-      text_layer_destroy(s_digits[i]);
-    }
+    text_layer_destroy(g_digits[i]);
   }
+  text_layer_destroy(g_date_layer);
   
   // Free inverter layers
   for(int i = 0; i < 4; i++) {
-    if(s_beams[i]) {
-      inverter_layer_destroy(s_beams[i]);
-    }
+    inverter_layer_destroy(s_beams[i]);
   }
-  if(s_seconds_layer) {
-    inverter_layer_destroy(s_seconds_layer);
-  }
-  if(s_inverter_layer) {
-    inverter_layer_destroy(s_inverter_layer);
-  }
+  inverter_layer_destroy(s_seconds_layer);
+  inverter_layer_destroy(s_inverter_layer);
   
   // Unsubscribe from events
   tick_timer_service_unsubscribe();
 }
 
 static void init(void) {
+  // Prepare to receive app config
   comm_setup();
+
+  // Localize
+  setlocale(LC_ALL, "");
 
   // Subscribe to events
   tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
