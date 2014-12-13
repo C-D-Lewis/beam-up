@@ -22,6 +22,19 @@ static InverterLayer *s_seconds_layer, *s_inverter_layer;
 static void handle_tick(struct tm *t, TimeUnits units_changed) {  
   // Get the time
   int seconds = t->tm_sec;
+
+  // Hourly vibrate?
+  if(comm_get_setting(PERSIST_KEY_HOURLY)) {
+    if(t->tm_min == 0) {
+      // Buzz buzz
+      uint32_t segs[] = {200, 300, 200};
+      VibePattern pattern = {
+        .durations = segs,
+        .num_segments = ARRAY_LENGTH(segs)
+      };
+      vibes_enqueue_custom_pattern(pattern);
+    }
+  }
    
   // Bottom suface
   switch(seconds) {
