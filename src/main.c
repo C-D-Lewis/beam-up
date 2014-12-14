@@ -18,6 +18,8 @@ bool g_do_animations;
 static Window *s_main_window;
 static InverterLayer *s_beams[4];
 static InverterLayer *s_seconds_layer, *s_inverter_layer;
+static BitmapLayer *s_bt_layer;
+static GBitmap *s_bt_bitmap;
 
 static void handle_tick(struct tm *t, TimeUnits units_changed) {  
   // Get the time
@@ -25,7 +27,7 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
 
   // Hourly vibrate?
   if(comm_get_setting(PERSIST_KEY_HOURLY)) {
-    if(t->tm_min == 0) {
+    if(t->tm_min == 0 && seconds == 0) {
       // Buzz buzz
       uint32_t segs[] = {200, 300, 200};
       VibePattern pattern = {
@@ -141,6 +143,15 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
   }
 }
 
+static void bt_handler(bool connected) {
+  if(connected) {
+    layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), true);
+  } else {
+    vibes_short_pulse();
+    layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), false);
+  }
+}
+
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   
@@ -179,14 +190,24 @@ static void window_load(Window *window) {
   }
 
   // User settings
-  s_inverter_layer = inverter_layer_create(GRect(0, 0, 144, 168));
-  if(comm_get_setting(PERSIST_KEY_INVERTED)) {
-    layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
-  }
   g_do_animations = comm_get_setting(PERSIST_KEY_ANIM);
   g_date_layer = gen_text_layer(GRect(45, 105, 100, 30), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
   if(comm_get_setting(PERSIST_KEY_DATE)) {
     layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
+  }
+  s_bt_layer = bitmap_layer_create(GRect(59, 140, 27, 26));
+  s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT);
+  bitmap_layer_set_bitmap(s_bt_layer, s_bt_bitmap);
+  layer_add_child(window_layer, bitmap_layer_get_layer(s_bt_layer));
+  layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), true);
+  if(comm_get_setting(PERSIST_KEY_BT)) {
+    if(!bluetooth_connection_service_peek()) {
+      layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), false);
+    }
+  }
+  s_inverter_layer = inverter_layer_create(GRect(0, 0, 144, 168));
+  if(comm_get_setting(PERSIST_KEY_INVERTED)) {
+    layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
   }
 
   // Set time digits now  
@@ -211,6 +232,9 @@ static void window_unload(Window *window) {
     text_layer_destroy(g_digits[i]);
   }
   text_layer_destroy(g_date_layer);
+
+  bitmap_layer_destroy(s_bt_layer);
+  gbitmap_destroy(s_bt_bitmap);
   
   // Free inverter layers
   for(int i = 0; i < 4; i++) {
@@ -218,9 +242,6 @@ static void window_unload(Window *window) {
   }
   inverter_layer_destroy(s_seconds_layer);
   inverter_layer_destroy(s_inverter_layer);
-  
-  // Unsubscribe from events
-  tick_timer_service_unsubscribe();
 }
 
 static void init(void) {
@@ -232,6 +253,10 @@ static void init(void) {
 
   // Subscribe to events
   tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+
+  if(comm_get_setting(PERSIST_KEY_BT)) {
+    bluetooth_connection_service_subscribe(bt_handler);
+  }
 
   // Create main window
   s_main_window = window_create();
@@ -245,6 +270,10 @@ static void init(void) {
 
 static void deinit(void) {
   window_destroy(s_main_window);
+
+  // Unsubscribe from events
+  tick_timer_service_unsubscribe();
+  bluetooth_connection_service_unsubscribe();
 }
 
 int main(void) {
