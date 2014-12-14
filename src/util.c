@@ -3,7 +3,7 @@
 /**
   * Function to get time digits into buffers
   */
-void write_time_digits(struct tm *t) {
+void util_write_time_digits(struct tm *t) {
   // Hour string
   if(clock_is_24h_style()) {
     strftime(g_time_buffer, sizeof("XX:XX"), "%H:%M", t);
@@ -23,7 +23,7 @@ void write_time_digits(struct tm *t) {
 /**
   * Function to set the time and date digits on the TextLayers
   */
-void show_time_digits() {  
+void util_show_time_digits() {  
   if(!DEBUG_MODE) {
     // Include null chars
     static char s_chars[4][2] = {"1", "2", "3", "4"};
@@ -57,9 +57,9 @@ void show_time_digits() {
   * will not fire! 
   * The solution is to advance the ones about to change pre-emptively
   */
-void predict_next_change(struct tm *t) {
+void util_predict_next_change(struct tm *t) {
   // These will be for the previous minute at 59 seconds
-  write_time_digits(t);
+  util_write_time_digits(t);
    
   // Fix hours tens
   if(
@@ -87,7 +87,7 @@ void predict_next_change(struct tm *t) {
 /**
  * Initialize a text layer
  */
-TextLayer* gen_text_layer(GRect location, GColor colour, GColor background, bool custom_font, int custom_res_id, const char *res_id, GTextAlignment alignment) {
+TextLayer* util_gen_text_layer(GRect location, GColor colour, GColor background, bool custom_font, int custom_res_id, const char *res_id, GTextAlignment alignment) {
   TextLayer *layer = text_layer_create(location);
   text_layer_set_text_color(layer, colour);
   text_layer_set_background_color(layer, background);
@@ -115,7 +115,7 @@ static void on_animation_stopped(Animation *anim, bool finished, void *context) 
 /*
  * Animate a layer with duration and delay
  */
-void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay) {
+void util_animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay) {
   if(!g_do_animations) {
     return;
   }
@@ -133,7 +133,7 @@ void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int de
   animation_schedule((Animation*) anim);
 }
 
-void interpret_message_result(AppMessageResult app_message_error) {
+void util_interpret_message_result(AppMessageResult app_message_error) {
   if(app_message_error == APP_MSG_OK)
   {
     APP_LOG(APP_LOG_LEVEL_ERROR, "APP_MSG_OK");

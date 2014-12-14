@@ -14,7 +14,7 @@ static void in_recv_handler(DictionaryIterator *iter, void *context) {
 }
 
 static void in_failed_handler(AppMessageResult reason, void *context) {
-  interpret_message_result(reason);
+  util_interpret_message_result(reason);
 }
 
 void comm_setup() {
