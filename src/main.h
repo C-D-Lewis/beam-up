@@ -21,6 +21,10 @@
 #define PERSIST_KEY_BATTERY  4
 #define PERSIST_KEY_HOURLY   5
 
+#define PERSIST_MAX_BOOLEANS 64
+#define PERSIST_KEY_H_VIBE   (PERSIST_MAX_BOOLEANS + 0)
+#define PERSIST_KEY_BT_VIBE  (PERSIST_MAX_BOOLEANS + 1)
+
 // Globals
 extern TextLayer *g_digits[5];
 extern TextLayer *g_date_layer;

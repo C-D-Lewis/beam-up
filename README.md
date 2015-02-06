@@ -23,3 +23,5 @@ Using the 'Settings' button in the Pebble app after install, choose from the fol
 * Shake to show battery level
 
 * Vibrate on the hour
+
+* Vibration types

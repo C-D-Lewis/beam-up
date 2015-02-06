@@ -12,19 +12,25 @@
         <td>Inverted colours</td><td><input id="check_inverted" type="checkbox"/></td>
       </tr>
       <tr>
-        <td>Show short date</td><td><input id="check_date" type="checkbox"/>
+        <td>Show short date</td><td><input id="check_date" type="checkbox"/></td>
       </tr>
       <tr>
-        <td>Animations</td><td><input id="check_animations" type="checkbox"/>
+        <td>Animations</td><td><input id="check_animations" type="checkbox"/></td>
       </tr>
       <tr>
         <td>Show disconnected indicator</td><td><input id="check_bluetooth" type="checkbox"/></td>
       </tr>
       <tr>
-        <td>Shake to show battery level</td><td><input id="check_battery" type="checkbox"/>
+        <td>Shake to show battery level</td><td><input id="check_battery" type="checkbox"/></td>
       </tr>
       <tr>
-        <td>Vibrate on the hour</td><td><input id="check_hourly" type="checkbox"/>
+        <td>Vibrate on the hour</td><td><input id="check_hourly" type="checkbox"/></td>
+      </tr>
+      <tr>
+        <td>Vibration type on the hour</td><td id="hourly_vibe"><input name="hourly_vibe" type="radio" value="0"/> Beam Up<br/><input name="hourly_vibe" type="radio" value="1"/> Single<br/><input name="hourly_vibe" type="radio" value="2"/> Double<br/><input name="hourly_vibe" type="radio" value="3"/> Long<br/></td>
+      </tr>
+      <tr>
+        <td>Vibration type on disconnect</td><td id="bluetooth_vibe"><input name="bluetooth_vibe" type="radio" value="1"/> Single<br/><input name="bluetooth_vibe" type="radio" value="2"/> Double<br/><input name="bluetooth_vibe" type="radio" value="3"/> Long<br/></td>
       </tr>
     </table>
 
@@ -47,6 +53,8 @@
     <script>
       function init() {
         document.getElementById("check_animations").checked = true;
+        document.querySelector("#hourly_vibe input").checked = true;
+        document.querySelector("#bluetooth_vibe input").checked = true;
       };
 
       function xhrAsyncRequest(url, type, callback) {
@@ -85,10 +93,13 @@
             "animations": document.getElementById("check_animations").checked ? 'true' : 'false',
             "bluetooth": document.getElementById("check_bluetooth").checked ? 'true' : 'false',
             "battery": document.getElementById("check_battery").checked ? 'true' : 'false',
-            "hourly": document.getElementById("check_hourly").checked ? 'true' : 'false'
+            "hourly": document.getElementById("check_hourly").checked ? 'true' : 'false',
+            "hourly_vibe": +document.querySelector("#hourly_vibe input:checked").value,
+            "bluetooth_vibe": +document.querySelector("#bluetooth_vibe input:checked").value
           };  
           var location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
-           
+          
+          alert(JSON.stringify(options));
           document.location = location;
         }, 
       false);

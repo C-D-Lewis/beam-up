@@ -4,9 +4,14 @@ static void in_recv_handler(DictionaryIterator *iter, void *context) {
   Tuple *t = dict_read_first(iter);
 
   while(t) {
-    // Super settings one liner!
-    persist_write_bool(t->key, strcmp(t->value->cstring, "true") == 0 ? true : false);
-
+    if (t->key < PERSIST_MAX_BOOLEANS) {
+      // Super settings one liner!
+      persist_write_bool(t->key, strcmp(t->value->cstring, "true") == 0 ? true : false);
+    } else {
+      // I really hate mysef for breaking this ^ feature :)
+      persist_write_int(t->key, t->value->int32);
+    }
+    
     t = dict_read_next(iter);
   }
 
@@ -25,4 +30,8 @@ void comm_setup() {
 
 bool comm_get_setting(int key) {
   return persist_read_bool(key);
+}
+
+int comm_get_setting_value(int key) {
+  return persist_read_int(key);
 }

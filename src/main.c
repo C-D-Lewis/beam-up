@@ -30,13 +30,26 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
   // Hourly vibrate?
   if(comm_get_setting(PERSIST_KEY_HOURLY)) {
     if(t->tm_min == 0 && seconds == 0) {
-      // Buzz buzz
-      uint32_t segs[] = {200, 300, 200};
-      VibePattern pattern = {
-        .durations = segs,
-        .num_segments = ARRAY_LENGTH(segs)
-      };
-      vibes_enqueue_custom_pattern(pattern);
+      switch (comm_get_setting_value(PERSIST_KEY_H_VIBE)) {
+      case 0:
+        // Buzz buzz
+        uint32_t segs[] = {200, 300, 200};
+        VibePattern pattern = {
+          .durations = segs,
+          .num_segments = ARRAY_LENGTH(segs)
+        };
+        vibes_enqueue_custom_pattern(pattern);
+        break;
+      case 1:
+        vibes_short_pulse();
+        break;
+      case 2:
+        vibes_double_pulse();
+        break;
+      case 3:
+        vibes_long_pulse();
+        break;
+      }
     }
   }
    
@@ -149,7 +162,17 @@ static void bt_handler(bool connected) {
   if(connected) {
     layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), true);
   } else {
-    vibes_short_pulse();
+    switch (comm_get_setting_value(PERSIST_KEY_BT_VIBE)) {
+    case 1:
+      vibes_short_pulse();
+      break;
+    case 2:
+      vibes_double_pulse();
+      break;
+    case 3:
+      vibes_long_pulse();
+      break;
+    }
     layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), false);
   }
 }

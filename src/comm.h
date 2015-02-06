@@ -9,3 +9,4 @@
 void comm_setup();
 
 bool comm_get_setting(int key);
+int comm_get_setting_value(int key);
