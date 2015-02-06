@@ -1,51 +1,52 @@
 {
-	"versionLabel": "2.3",
-	"uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
-	"longName": "Beam Up",
-	"versionCode": 8,
-	"shortName": "Beam Up",
-	"companyName": "Chris Lewis",
-	"watchapp": {
-		"watchface": true
-	},
-	"capabilities": [
-		"configurable"
-	],
-	"appKeys": {
-		"PERSIST_KEY_INVERTED": 0,
-		"PERSIST_KEY_DATE": 1,
-		"PERSIST_KEY_ANIM": 2,
-		"PERSIST_KEY_BT": 3,
-		"PERSIST_KEY_BATTERY": 4,
-		"PERSIST_KEY_HOURLY": 5,
-		"PERSIST_KEY_H_VIBE": 64,
-		"PERSIST_KEY_BT_VIBE": 65
-	},
-	"resources": {
-		"media": [
-			{
-				"type": "font",
-				"name": "FONT_IMAGINE_48",
-				"file": "fonts/imagine.ttf",
-				"compatibility":"2.7"
-			},
-			{
-				"type": "font",
-				"name": "FONT_IMAGINE_24",
-				"file": "fonts/imagine.ttf",
-				"compatibility":"2.7"
-			},
-			{
-				"menuIcon": true,
-				"type": "png",
-				"name": "IMAGE_MENU_ICON",
-				"file": "images/menu_icon.png"
-			},
-			{
-				"type": "png",
-				"name": "BT",
-				"file": "images/bt-bar.png"
-			}
-		]
-	}
+    "appKeys": {
+        "PERSIST_KEY_ANIM": 2,
+        "PERSIST_KEY_BATTERY": 4,
+        "PERSIST_KEY_BT": 3,
+        "PERSIST_KEY_BT_VIBE": 65,
+        "PERSIST_KEY_DATE": 1,
+        "PERSIST_KEY_HOURLY": 5,
+        "PERSIST_KEY_H_VIBE": 64,
+        "PERSIST_KEY_INVERTED": 0
+    },
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "Chris Lewis",
+    "longName": "Beam Up",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/bt-bar.png",
+                "name": "BT",
+                "type": "png"
+            },
+            {
+                "file": "images/menu_icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENU_ICON",
+                "type": "png"
+            },
+            {
+                "compatibility": "2.7",
+                "file": "fonts/imagine.ttf",
+                "name": "FONT_IMAGINE_24",
+                "type": "font"
+            },
+            {
+                "compatibility": "2.7",
+                "file": "fonts/imagine.ttf",
+                "name": "FONT_IMAGINE_48",
+                "type": "font"
+            }
+        ]
+    },
+    "shortName": "Beam Up",
+    "uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
+    "versionCode": 8,
+    "versionLabel": "2.3",
+    "watchapp": {
+        "watchface": true
+    }
 }
