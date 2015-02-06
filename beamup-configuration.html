@@ -97,9 +97,8 @@
             "hourly_vibe": +document.querySelector("#hourly_vibe input:checked").value,
             "bluetooth_vibe": +document.querySelector("#bluetooth_vibe input:checked").value
           };  
-          var location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
           
-          alert(JSON.stringify(options));
+          var location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
           document.location = location;
         }, 
       false);
