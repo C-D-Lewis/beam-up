@@ -3,7 +3,8 @@
  * Author: Chris Lewis
  */
 
-#include "main.h"
+#include "globals.h"
+#include "comm.h"
 
 // Global prototypes
 TextLayer *g_digits[5];
@@ -17,11 +18,12 @@ bool g_do_animations;
 // UI elements
 static Window *s_main_window;
 static InverterLayer *s_beams[4];
-static InverterLayer *s_seconds_layer, *s_inverter_layer, *s_battery_layer;
+static InverterLayer *s_seconds_layer, *s_battery_layer;
 static BitmapLayer *s_bt_layer;
 static GBitmap *s_bt_bitmap;
 
-static bool tapped;
+// Data
+static bool s_tapped;
 
 static void handle_tick(struct tm *t, TimeUnits units_changed) {  
   // Get the time
@@ -159,7 +161,7 @@ static void batt_anim_handler(void *context) {
   GRect finish = GRect(0, 165, 0, 3);
 
   util_animate_layer(inverter_layer_get_layer(s_battery_layer), start, finish, 300, 0);
-  tapped = false;
+  s_tapped = false;
 }
 
 static void tap_handler(AccelAxisType axis, int32_t direction) {
@@ -167,8 +169,8 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
   int level = state.charge_percent;
   int width = (int)(float)(((float)level / 100.0F) * (float)144);
 
-  if(!tapped) {
-    tapped = true;
+  if(!s_tapped) {
+    s_tapped = true;
 
     GRect start = GRect(0, 165, 0, 3);
     GRect finish = GRect(0, 165, width, 3);
@@ -235,10 +237,6 @@ static void window_load(Window *window) {
   if(comm_get_setting(PERSIST_KEY_BATTERY)) {
     layer_add_child(window_layer, inverter_layer_get_layer(s_battery_layer));
   }
-  s_inverter_layer = inverter_layer_create(GRect(0, 0, 144, 168));
-  if(comm_get_setting(PERSIST_KEY_INVERTED)) {
-    layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
-  }
 
   // Set time digits now  
   util_show_time_digits();
@@ -271,11 +269,10 @@ static void window_unload(Window *window) {
     inverter_layer_destroy(s_beams[i]);
   }
   inverter_layer_destroy(s_seconds_layer);
-  inverter_layer_destroy(s_inverter_layer);
   inverter_layer_destroy(s_battery_layer);
 }
 
-static void init(void) {
+static void init() {
   // Prepare to receive app config
   comm_setup();
 
@@ -301,16 +298,15 @@ static void init(void) {
   window_stack_push(s_main_window, true);
 }
 
-static void deinit(void) {
+static void deinit() {
   window_destroy(s_main_window);
 
-  // Unsubscribe from events
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   accel_tap_service_unsubscribe();
 }
 
-int main(void) {
+int main() {
   init();
   app_event_loop();
   deinit();
