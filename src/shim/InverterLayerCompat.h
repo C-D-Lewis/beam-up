@@ -2,7 +2,7 @@
  * InverterLayer substitute for Basalt
  * Author: Chris Lewis
  *
- * Caveat: Must specify colors with inverter_layer_set_colors(). Defaults to white and black
+ * Caveat: Must specify colors with inverter_layer_set_colors().
  */
 
 #ifdef PBL_PLATFORM_BASALT

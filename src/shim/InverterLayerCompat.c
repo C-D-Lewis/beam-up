@@ -45,10 +45,6 @@ InverterLayerCompat *inverter_layer_compat_create(GRect bounds) {
   this->layer = layer_create(bounds);
   layer_set_update_proc(this->layer, layer_update_proc);
 
-  // Init colors
-  s_fg_color = GColorWhite;
-  s_bg_color = GColorBlack;
-
   return this;
 }
 

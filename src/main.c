@@ -213,19 +213,19 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   
   // Allocate text layers
-  g_digits[0] = util_gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[0] = util_gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[0]));
 
-  g_digits[1] = util_gen_text_layer(GRect(HOURS_UNITS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[1] = util_gen_text_layer(GRect(HOURS_UNITS_X, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[1]));
 
-  g_digits[2] = util_gen_text_layer(GRect(68, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
+  g_digits[2] = util_gen_text_layer(GRect(68, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[2]));
 
-  g_digits[3] = util_gen_text_layer(GRect(MINS_TENS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[3] = util_gen_text_layer(GRect(MINS_TENS_X, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[3]));
 
-  g_digits[4] = util_gen_text_layer(GRect(MINS_UNITS_X, 53, 50, 60), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[4] = util_gen_text_layer(GRect(MINS_UNITS_X, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[4]));
 
   // Allocate inverter layers
@@ -235,7 +235,7 @@ static void window_load(Window *window) {
   }
   s_seconds_layer = create_inv_layer(GRect(0, 0, 144, 0));
   #ifdef PBL_PLATFORM_BASALT
-  inverter_layer_compat_set_colors(GColorWhite, GColorBlack);    
+  inverter_layer_compat_set_colors(COLOR_FALLBACK(GColorMintGreen, GColorWhite), COLOR_FALLBACK(GColorIslamicGreen, GColorBlack));    
   #endif
   layer_add_child(window_layer, get_inv_layer(s_seconds_layer));
 
@@ -251,7 +251,7 @@ static void window_load(Window *window) {
 
   // User settings
   g_do_animations = comm_get_setting(PERSIST_KEY_ANIM);
-  g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), GColorWhite, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
+  g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
   if(comm_get_setting(PERSIST_KEY_DATE)) {
     layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
   }
@@ -323,7 +323,7 @@ static void init() {
 
   // Create main window
   s_main_window = window_create();
-  window_set_background_color(s_main_window, GColorBlack);
+  window_set_background_color(s_main_window, COLOR_FALLBACK(GColorIslamicGreen, GColorBlack));
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = window_load,
     .unload = window_unload
