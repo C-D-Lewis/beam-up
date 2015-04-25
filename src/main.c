@@ -275,6 +275,7 @@ static void window_unload(Window *window) {
 static void init() {
   // Prepare to receive app config
   comm_setup();
+  comm_first_time_setup();
 
   // Localize
   setlocale(LC_ALL, "");

@@ -17,6 +17,24 @@ static void in_failed_handler(AppMessageResult reason, void *context) {
   util_interpret_message_result(reason);
 }
 
+void comm_first_time_setup() {
+  if(!persist_exists(PERSIST_KEY_DATE)) {
+    persist_write_bool(PERSIST_KEY_DATE, false);
+  }
+  if(!persist_exists(PERSIST_KEY_ANIM)) {
+    persist_write_bool(PERSIST_KEY_ANIM, true);
+  }
+  if(!persist_exists(PERSIST_KEY_BT)) {
+    persist_write_bool(PERSIST_KEY_BT, false);
+  }
+  if(!persist_exists(PERSIST_KEY_BATTERY)) {
+    persist_write_bool(PERSIST_KEY_BATTERY, false);
+  }
+  if(!persist_exists(PERSIST_KEY_HOURLY)) {
+    persist_write_bool(PERSIST_KEY_HOURLY, false);
+  }
+}
+
 void comm_setup() {
   app_message_register_inbox_dropped(in_failed_handler);
   app_message_register_inbox_received(in_recv_handler);
