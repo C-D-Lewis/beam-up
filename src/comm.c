@@ -25,7 +25,7 @@ void comm_first_time_setup() {
     persist_write_bool(PERSIST_KEY_ANIM, true);
   }
   if(!persist_exists(PERSIST_KEY_BT)) {
-    persist_write_bool(PERSIST_KEY_BT, false);
+    persist_write_bool(PERSIST_KEY_BT, true);
   }
   if(!persist_exists(PERSIST_KEY_BATTERY)) {
     persist_write_bool(PERSIST_KEY_BATTERY, false);
