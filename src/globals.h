@@ -24,6 +24,7 @@
 #define THEME_CLASSIC 0
 #define THEME_GREEN   1
 #define THEME_BLUE    2
+#define THEME_RED     3
 
 extern TextLayer *g_digits[5];
 extern TextLayer *g_date_layer;

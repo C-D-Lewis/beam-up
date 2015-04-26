@@ -18,6 +18,8 @@ static void in_recv_handler(DictionaryIterator *iter, void *context) {
             persist_write_int(PERSIST_KEY_THEME, THEME_GREEN);
           } else if(strcmp("blue", t->value->cstring) == 0) {
             persist_write_int(PERSIST_KEY_THEME, THEME_BLUE);
+          } else if(strcmp("red", t->value->cstring) == 0) {
+            persist_write_int(PERSIST_KEY_THEME, THEME_RED);
           }
           break;
         default: 
@@ -30,6 +32,7 @@ static void in_recv_handler(DictionaryIterator *iter, void *context) {
   }
 
   vibes_short_pulse();
+  window_stack_pop_all(true);
 }
 
 static void in_failed_handler(AppMessageResult reason, void *context) {

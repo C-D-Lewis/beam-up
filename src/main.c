@@ -181,7 +181,7 @@ static void bt_handler(bool connected) {
   if(connected) {
     layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), true);
   } else {
-    vibes_short_pulse();
+    vibes_double_pulse();
     layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), false);
   }
 }
@@ -259,6 +259,9 @@ static void window_load(Window *window) {
   s_bt_layer = bitmap_layer_create(GRect(59, 140, 27, 26));
   s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT);
   bitmap_layer_set_bitmap(s_bt_layer, s_bt_bitmap);
+#ifdef PBL_PLATFORM_BASALT
+  bitmap_layer_set_compositing_mode(s_bt_layer, GCompOpSet);
+#endif
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bt_layer));
   layer_set_hidden(bitmap_layer_get_layer(s_bt_layer), true);
   if(comm_get_setting(PERSIST_KEY_BT)) {
@@ -323,6 +326,10 @@ static void init() {
     case THEME_BLUE:
       fg_color = GColorPictonBlue;
       bg_color = GColorBlueMoon;
+      break;
+    case THEME_RED:
+      fg_color = GColorSunsetOrange;
+      bg_color = GColorRed;
       break;
     default://THEME_CLASSIC
       fg_color = GColorWhite;
