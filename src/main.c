@@ -324,11 +324,11 @@ static void init() {
       bg_color = GColorIslamicGreen;
       break;
     case THEME_BLUE:
-      fg_color = GColorPictonBlue;
+      fg_color = GColorElectricBlue;
       bg_color = GColorBlueMoon;
       break;
     case THEME_RED:
-      fg_color = GColorSunsetOrange;
+      fg_color = GColorMelon;
       bg_color = GColorRed;
       break;
     default://THEME_CLASSIC
