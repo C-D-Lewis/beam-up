@@ -257,7 +257,15 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
   }
   s_bt_layer = bitmap_layer_create(GRect(59, 140, 27, 26));
+#ifdef PBL_PLATFORM_APLITE
   s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT);
+#elif PBL_PLATFORM_BASALT
+  if(comm_get_theme() == THEME_CLASSIC_INVERTED) {
+    s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT_INV);
+  } else {
+    s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT);
+  }
+#endif
   bitmap_layer_set_bitmap(s_bt_layer, s_bt_bitmap);
 #ifdef PBL_PLATFORM_BASALT
   bitmap_layer_set_compositing_mode(s_bt_layer, GCompOpSet);
@@ -330,6 +338,10 @@ static void init() {
     case THEME_RED:
       fg_color = GColorMelon;
       bg_color = GColorRed;
+      break;
+    case THEME_CLASSIC_INVERTED:
+      fg_color = GColorBlack;
+      bg_color = GColorWhite;
       break;
     default://THEME_CLASSIC
       fg_color = GColorWhite;

@@ -44,6 +44,11 @@
         "type": "png",
         "name": "BT",
         "file": "images/bt-bar.png"
+      },
+      {
+        "type": "png",
+        "name": "BT_INV",
+        "file": "images/bt-bar-inv.png"
       }
     ]
   },
