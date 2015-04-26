@@ -18,7 +18,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
     'PERSIST_KEY_ANIM': '' + json.animations,
     'PERSIST_KEY_BT': '' + json.bluetooth,
     'PERSIST_KEY_BATTERY': '' + json.battery,
-    'PERSIST_KEY_HOURLY': '' + json.hourly
+    'PERSIST_KEY_HOURLY': '' + json.hourly,
+    'PERSIST_KEY_THEME': '' + json.theme
   };
 
   Pebble.sendAppMessage(options,

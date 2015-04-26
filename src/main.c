@@ -31,6 +31,7 @@ static GBitmap *s_bt_bitmap;
 
 // Data
 static bool s_tapped;
+static GColor bg_color, fg_color;
 
 #ifdef PBL_PLATFORM_APLITE
 static InverterLayer* create_inv_layer(GRect bounds) {
@@ -213,19 +214,19 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   
   // Allocate text layers
-  g_digits[0] = util_gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[0] = util_gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[0]));
 
-  g_digits[1] = util_gen_text_layer(GRect(HOURS_UNITS_X, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[1] = util_gen_text_layer(GRect(HOURS_UNITS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[1]));
 
-  g_digits[2] = util_gen_text_layer(GRect(68, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
+  g_digits[2] = util_gen_text_layer(GRect(68, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[2]));
 
-  g_digits[3] = util_gen_text_layer(GRect(MINS_TENS_X, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[3] = util_gen_text_layer(GRect(MINS_TENS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[3]));
 
-  g_digits[4] = util_gen_text_layer(GRect(MINS_UNITS_X, 53, 50, 60), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[4] = util_gen_text_layer(GRect(MINS_UNITS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[4]));
 
   // Allocate inverter layers
@@ -235,7 +236,7 @@ static void window_load(Window *window) {
   }
   s_seconds_layer = create_inv_layer(GRect(0, 0, 144, 0));
   #ifdef PBL_PLATFORM_BASALT
-  inverter_layer_compat_set_colors(COLOR_FALLBACK(GColorMintGreen, GColorWhite), COLOR_FALLBACK(GColorIslamicGreen, GColorBlack));    
+  inverter_layer_compat_set_colors(fg_color, bg_color);    
   #endif
   layer_add_child(window_layer, get_inv_layer(s_seconds_layer));
 
@@ -244,14 +245,14 @@ static void window_load(Window *window) {
   struct tm *t = localtime(&temp);  
   util_write_time_digits(t);
   
-  // Stop 'all change' on firsinute
+  // Stop 'all change' on first minute
   for(int i = 0; i < 4; i++) {
     g_state_prev[i] = g_state_now[i];
   }
 
   // User settings
   g_do_animations = comm_get_setting(PERSIST_KEY_ANIM);
-  g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), COLOR_FALLBACK(GColorMintGreen, GColorWhite), GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
+  g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
   if(comm_get_setting(PERSIST_KEY_DATE)) {
     layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
   }
@@ -309,6 +310,27 @@ static void init() {
   comm_setup();
   comm_first_time_setup();
 
+  // Setup colors
+#ifdef PBL_PLATFORM_APLITE
+  fg_color = GColorWhite;
+  bg_color = GColorBlack;
+#elif PBL_PLATFORM_BASALT
+  switch(comm_get_theme()) {
+    case THEME_GREEN:
+      fg_color = GColorMintGreen;
+      bg_color = GColorIslamicGreen;
+      break;
+    case THEME_BLUE:
+      fg_color = GColorPictonBlue;
+      bg_color = GColorBlueMoon;
+      break;
+    default://THEME_CLASSIC
+      fg_color = GColorWhite;
+      bg_color = GColorBlack;
+      break;
+  }
+#endif
+
   // Localize
   setlocale(LC_ALL, "");
 
@@ -323,7 +345,7 @@ static void init() {
 
   // Create main window
   s_main_window = window_create();
-  window_set_background_color(s_main_window, COLOR_FALLBACK(GColorIslamicGreen, GColorBlack));
+  window_set_background_color(s_main_window, bg_color);
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = window_load,
     .unload = window_unload

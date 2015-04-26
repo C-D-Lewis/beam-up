@@ -6,6 +6,13 @@
   <body>
     <h2>Beam Up Configuration</h2>
     <p>Choose settings, click 'Save' and reload app.</p>
+
+    <p>Color Theme:</p>
+    <select id='theme_select'>
+      <option value='classic'>Classic</option>
+      <option value='green'>Green</option>
+      <option value='blue'>Blue</option>
+    </select>
  
     <table>
       <tr>
@@ -26,6 +33,7 @@
     </table>
 
     <p>
+      <b>After saving, restart watchapp!</b>
     <button id='save_button'>Save</button>
     </p>
 
@@ -65,6 +73,7 @@
           persistWrite('bluetooth', 'true');
           persistWrite('battery', 'false');
           persistWrite('hourly', 'false');
+          persistWrite('theme', 'classic');
         }
       }
 
@@ -74,11 +83,15 @@
         document.getElementById('check_bluetooth').checked = persistRead('bluetooth', 'true') === 'true';
         document.getElementById('check_battery').checked = persistRead('battery', 'false') === 'true';
         document.getElementById('check_hourly').checked = persistRead('hourly', 'false') === 'true';
-      }
 
-      function init() {
-        document.getElementById('check_animations').checked = true;
-      };
+        var category = persistRead('theme', 'classic'); // Default
+        var themeSelect = document.getElementById('theme_select');
+        for(var i = 0; i < themeSelect.options.length; i += 1) {
+          if(themeSelect.options[i].value == category) {
+            themeSelect.selectedIndex = i;
+          }
+        }
+      }
 
       function xhrAsyncRequest(url, type, callback) {
         var xhr = new XMLHttpRequest();
@@ -110,12 +123,15 @@
       var submitButton = document.getElementById('save_button');
       submitButton.addEventListener('click', 
         function() {
+          var themeSelect = document.getElementById('theme_select');
+
           var options = {
             'date': document.getElementById('check_date').checked ? 'true' : 'false',
             'animations': document.getElementById('check_animations').checked ? 'true' : 'false',
             'bluetooth': document.getElementById('check_bluetooth').checked ? 'true' : 'false',
             'battery': document.getElementById('check_battery').checked ? 'true' : 'false',
-            'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false'
+            'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false',
+            'theme': '' + themeSelect.options[themeSelect.selectedIndex].value
           };
 
           // Save
@@ -124,15 +140,14 @@
           persistWrite('bluetooth', options['bluetooth']);
           persistWrite('battery', options['battery']);
           persistWrite('hourly', options['hourly']);
+          persistWrite('theme', options['theme']);
 
           // Return
-          var location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
-           
-          document.location = location;
+          document.location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
         }, 
       false);
 
-      init();
+      firstTimeSetup();
       getAppVersionAndNews();
       loadConfig();
     </script>

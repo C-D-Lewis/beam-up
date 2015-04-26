@@ -17,7 +17,8 @@
     "PERSIST_KEY_ANIM": 2,
     "PERSIST_KEY_BT": 3,
     "PERSIST_KEY_BATTERY": 4,
-    "PERSIST_KEY_HOURLY": 5
+    "PERSIST_KEY_HOURLY": 5,
+    "PERSIST_KEY_THEME": 6
   },
   "resources": {
     "media": [
