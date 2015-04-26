@@ -69,11 +69,11 @@
       }
 
       function loadConfig() {
-        document.getElementById('check_date').checked = persistRead('date', 'false');
-        document.getElementById('check_animations').checked = persistRead('animations', 'true');
-        document.getElementById('check_bluetooth').checked = persistRead('bluetooth', 'true');
-        document.getElementById('check_battery').checked = persistRead('battery', 'false');
-        document.getElementById('check_hourly').checked = persistRead('hourly', 'false');
+        document.getElementById('check_date').checked = persistRead('date', 'false') === 'true';
+        document.getElementById('check_animations').checked = persistRead('animations', 'true') === 'true';
+        document.getElementById('check_bluetooth').checked = persistRead('bluetooth', 'true') === 'true';
+        document.getElementById('check_battery').checked = persistRead('battery', 'false') === 'true';
+        document.getElementById('check_hourly').checked = persistRead('hourly', 'false') === 'true';
       }
 
       function init() {
@@ -117,6 +117,15 @@
             'battery': document.getElementById('check_battery').checked ? 'true' : 'false',
             'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false'
           };
+
+          // Save
+          persistWrite('date', options['date']);
+          persistWrite('animations', options['animations']);
+          persistWrite('bluetooth', options['bluetooth']);
+          persistWrite('battery', options['battery']);
+          persistWrite('hourly', options['hourly']);
+
+          // Return
           var location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
            
           document.location = location;
