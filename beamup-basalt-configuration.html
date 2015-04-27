@@ -5,17 +5,26 @@
   </head>
   <body>
     <h2>Beam Up Configuration</h2>
-    <p>Choose settings, click 'Save' and reload app.</p>
 
-    <p>Color Theme:</p>
+    <hr />
+
+    <h3>Color Theme (Pebble Time only)</h3>
+
     <select id='theme_select'>
       <option value='classic'>Classic</option>
+      <option value='inverted'>Inverted Classic</option>
       <option value='green'>Green</option>
       <option value='blue'>Blue</option>
       <option value='red'>Red</option>
-      <option value='inverted'>Inverted Classic</option>
+      <option value='yellow'>Yellow</option>
+      <option value='midnight'>Midnight</option>
     </select>
+
+    <hr />
  
+    <h3>Features</h3>
+
+    </p>
     <table>
       <tr>
         <td>Show short date</td><td><input id='check_date' type='checkbox'/>
@@ -40,14 +49,14 @@
     </p>
 
     <hr />
-    <h2>Version</h2>
+    <h3>Version</h3>
     <p id='current_version'>Current version:</p>
     <p id='p_version'>Getting latest version...</p>
 
     <hr />
 
     <p>
-    <h2>Latest News</h2>
+    <h3>Latest News</h3>
     <p id='news'>Loading...</p>
     </p>
 

@@ -22,6 +22,10 @@ static void in_recv_handler(DictionaryIterator *iter, void *context) {
             persist_write_int(PERSIST_KEY_THEME, THEME_RED);
           } else if(strcmp("inverted", t->value->cstring) == 0) {
             persist_write_int(PERSIST_KEY_THEME, THEME_CLASSIC_INVERTED);
+          } else if(strcmp("midnight", t->value->cstring) == 0) {
+            persist_write_int(PERSIST_KEY_THEME, THEME_MIDNIGHT);
+          } else if(strcmp("yellow", t->value->cstring) == 0) {
+            persist_write_int(PERSIST_KEY_THEME, THEME_YELLOW);
           }
           break;
         default: 

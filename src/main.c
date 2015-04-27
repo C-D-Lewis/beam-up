@@ -327,6 +327,14 @@ static void init() {
   bg_color = GColorBlack;
 #elif PBL_PLATFORM_BASALT
   switch(comm_get_theme()) {
+    case THEME_CLASSIC:
+      fg_color = GColorWhite;
+      bg_color = GColorBlack;
+      break;
+    case THEME_CLASSIC_INVERTED:
+      fg_color = GColorBlack;
+      bg_color = GColorWhite;
+      break;
     case THEME_GREEN:
       fg_color = GColorMintGreen;
       bg_color = GColorIslamicGreen;
@@ -339,11 +347,15 @@ static void init() {
       fg_color = GColorMelon;
       bg_color = GColorRed;
       break;
-    case THEME_CLASSIC_INVERTED:
-      fg_color = GColorBlack;
-      bg_color = GColorWhite;
+    case THEME_YELLOW:
+      fg_color = GColorPastelYellow;
+      bg_color = GColorChromeYellow;
       break;
-    default://THEME_CLASSIC
+    case THEME_MIDNIGHT:
+      fg_color = GColorWhite;
+      bg_color = GColorOxfordBlue;
+      break;
+    default:
       fg_color = GColorWhite;
       bg_color = GColorBlack;
       break;
