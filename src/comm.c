@@ -7,19 +7,54 @@ static void in_recv_handler(DictionaryIterator *iter, void *context) {
     if (t->key < PERSIST_MAX_BOOLEANS) {
       // Super settings one liner!
       persist_write_bool(t->key, strcmp(t->value->cstring, "true") == 0 ? true : false);
+    } else if (t->key == PERSIST_KEY_THEME) {
+#ifdef PBL_PLATFORM_BASALT
+      if(strcmp("classic", t->value->cstring) == 0) {
+        persist_write_int(PERSIST_KEY_THEME, THEME_CLASSIC);
+      } else if(strcmp("green", t->value->cstring) == 0) {
+        persist_write_int(PERSIST_KEY_THEME, THEME_GREEN);
+      } else if(strcmp("blue", t->value->cstring) == 0) {
+        persist_write_int(PERSIST_KEY_THEME, THEME_BLUE);
+      } else if(strcmp("red", t->value->cstring) == 0) {
+        persist_write_int(PERSIST_KEY_THEME, THEME_RED);
+      } else if(strcmp("inverted", t->value->cstring) == 0) {
+        persist_write_int(PERSIST_KEY_THEME, THEME_CLASSIC_INVERTED);
+      } else if(strcmp("midnight", t->value->cstring) == 0) {
+        persist_write_int(PERSIST_KEY_THEME, THEME_MIDNIGHT);
+      } else if(strcmp("yellow", t->value->cstring) == 0) {
+        persist_write_int(PERSIST_KEY_THEME, THEME_YELLOW);
+      }
+#endif
     } else {
-      // I really hate mysef for breaking this ^ feature :)
       persist_write_int(t->key, t->value->int32);
     }
-    
     t = dict_read_next(iter);
   }
 
   vibes_short_pulse();
+  window_stack_pop_all(true);
 }
 
 static void in_failed_handler(AppMessageResult reason, void *context) {
   util_interpret_message_result(reason);
+}
+
+void comm_first_time_setup() {
+  if(!persist_exists(PERSIST_KEY_DATE)) {
+    persist_write_bool(PERSIST_KEY_DATE, false);
+  }
+  if(!persist_exists(PERSIST_KEY_ANIM)) {
+    persist_write_bool(PERSIST_KEY_ANIM, true);
+  }
+  if(!persist_exists(PERSIST_KEY_BT)) {
+    persist_write_bool(PERSIST_KEY_BT, true);
+  }
+  if(!persist_exists(PERSIST_KEY_BATTERY)) {
+    persist_write_bool(PERSIST_KEY_BATTERY, false);
+  }
+  if(!persist_exists(PERSIST_KEY_HOURLY)) {
+    persist_write_bool(PERSIST_KEY_HOURLY, false);
+  }
 }
 
 void comm_setup() {
@@ -34,4 +69,8 @@ bool comm_get_setting(int key) {
 
 int comm_get_setting_value(int key) {
   return persist_read_int(key);
+}
+
+int comm_get_theme() {
+  return persist_read_int(PERSIST_KEY_THEME);
 }

@@ -1,51 +1,62 @@
 {
-	"versionLabel": "2.3",
-	"uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
-	"longName": "Beam Up",
-	"versionCode": 8,
-	"shortName": "Beam Up",
-	"companyName": "Chris Lewis",
-	"watchapp": {
-		"watchface": true
-	},
-	"capabilities": [
-		"configurable"
-	],
-	"appKeys": {
-		"PERSIST_KEY_INVERTED": 0,
-		"PERSIST_KEY_DATE": 1,
-		"PERSIST_KEY_ANIM": 2,
-		"PERSIST_KEY_BT": 3,
-		"PERSIST_KEY_BATTERY": 4,
-		"PERSIST_KEY_HOURLY": 5,
-		"PERSIST_KEY_H_VIBE": 64,
-		"PERSIST_KEY_BT_VIBE": 65
-	},
-	"resources": {
-		"media": [
-			{
-				"type": "font",
-				"name": "FONT_IMAGINE_48",
-				"file": "fonts/imagine.ttf",
-				"compatibility":"2.7"
-			},
-			{
-				"type": "font",
-				"name": "FONT_IMAGINE_24",
-				"file": "fonts/imagine.ttf",
-				"compatibility":"2.7"
-			},
-			{
-				"menuIcon": true,
-				"type": "png",
-				"name": "IMAGE_MENU_ICON",
-				"file": "images/menu_icon.png"
-			},
-			{
-				"type": "png",
-				"name": "BT",
-				"file": "images/bt-bar.png"
-			}
-		]
-	}
+  "versionLabel": "2.4",
+  "uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
+  "longName": "Beam Up",
+  "versionCode": 9,
+  "shortName": "Beam Up",
+  "companyName": "Chris Lewis",
+  "watchapp": {
+    "watchface": true
+  },
+  "capabilities": [
+    "configurable"
+  ],
+  "appKeys": {
+    "PERSIST_KEY_INVERTED": 0,
+    "PERSIST_KEY_DATE": 1,
+    "PERSIST_KEY_ANIM": 2,
+    "PERSIST_KEY_BT": 3,
+    "PERSIST_KEY_BATTERY": 4,
+    "PERSIST_KEY_HOURLY": 5,
+    "PERSIST_KEY_THEME": 6,
+    "PERSIST_KEY_H_VIBE": 64,
+    "PERSIST_KEY_BT_VIBE": 65
+  },
+  "resources": {
+    "media": [
+      {
+        "type": "font",
+        "name": "FONT_IMAGINE_48",
+        "file": "fonts/imagine.ttf",
+        "compatibility": "2.7"
+      },
+      {
+        "type": "font",
+        "name": "FONT_IMAGINE_24",
+        "file": "fonts/imagine.ttf",
+        "compatibility": "2.7"
+      },
+      {
+        "menuIcon": true,
+        "type": "png",
+        "name": "IMAGE_MENU_ICON",
+        "file": "images/menu_icon.png"
+      },
+      {
+        "type": "png",
+        "name": "BT",
+        "file": "images/bt-bar.png"
+      },
+      {
+        "type": "png",
+        "name": "BT_INV",
+        "file": "images/bt-bar-inv.png"
+      }
+    ]
+  },
+  "targetPlatforms": [
+    "aplite",
+    "basalt"
+  ],
+  "sdkVersion": "3"
 }
