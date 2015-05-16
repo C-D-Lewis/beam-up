@@ -55,7 +55,7 @@ static void destroy_inv_layer(InverterLayerCompat *this) {
 }
 #endif
 
-static void handle_tick(struct tm *t, TimeUnits units_changed) {  
+static void handle_tick(struct tm *t, TimeUnits units_changed) {
   // Get the time
   int seconds = t->tm_sec;
 
@@ -67,7 +67,7 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
         .durations = segs,
         .num_segments = ARRAY_LENGTH(segs)
       };
-      
+
       switch (comm_get_setting_value(PERSIST_KEY_H_VIBE)) {
       case 0:
         // Buzz buzz
@@ -85,18 +85,18 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
       }
     }
   }
-   
+
   // Bottom suface
   switch(seconds) {
     // Beam Up!
-    case 0:    
+    case 0:
       util_write_time_digits(t);
-       
+
       // Set the time off screen
-      util_show_time_digits(); 
-   
+      util_show_time_digits();
+
       // Animate stuff back into place
-      if((g_state_now[3] != g_state_prev[3]) || (DEBUG_MODE)) {     
+      if((g_state_now[3] != g_state_prev[3]) || (DEBUG_MODE)) {
         util_animate_layer(text_layer_get_layer(g_digits[4]), GRect(MINS_UNITS_X, -50, 50, 60), GRect(MINS_UNITS_X, 53, 50, 60), 200, 100);
         util_animate_layer(get_inv_layer(s_beams[3]), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
         g_state_prev[3] = g_state_now[3];   // reset the thing
@@ -104,19 +104,19 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
       if((g_state_now[2] != g_state_prev[2]) || (DEBUG_MODE)) {
         util_animate_layer(text_layer_get_layer(g_digits[3]), GRect(MINS_TENS_X, -50, 50, 60), GRect(MINS_TENS_X, 53, 50, 60), 200, 100);
         util_animate_layer(get_inv_layer(s_beams[2]), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-        g_state_prev[2] = g_state_now[2];   
+        g_state_prev[2] = g_state_now[2];
       }
-      if((g_state_now[1] != g_state_prev[1]) || (DEBUG_MODE)) {     
+      if((g_state_now[1] != g_state_prev[1]) || (DEBUG_MODE)) {
         util_animate_layer(text_layer_get_layer(g_digits[1]), GRect(HOURS_UNITS_X, -50, 50, 60), GRect(HOURS_UNITS_X, 53, 50, 60), 200, 100);
         util_animate_layer(get_inv_layer(s_beams[1]), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-        g_state_prev[1] = g_state_now[1];   
+        g_state_prev[1] = g_state_now[1];
       }
       if((g_state_now[0] != g_state_prev[0]) || (DEBUG_MODE)) {
         util_animate_layer(text_layer_get_layer(g_digits[0]), GRect(HOUR_TENS_X, -50, 50, 60), GRect(HOUR_TENS_X, 53, 50, 60), 200, 100);
         util_animate_layer(get_inv_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
-        g_state_prev[0] = g_state_now[0];   
+        g_state_prev[0] = g_state_now[0];
       }
-       
+
       // Bottom surface down
       util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
       break;
@@ -163,31 +163,31 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
     case 59:
       // Predict next changes
       util_predict_next_change(t); // CALLS util_write_time_digits()
-       
+
       // Only change minutes units if its changed
       if((g_state_now[3] != g_state_prev[3]) || (DEBUG_MODE)) {
         util_animate_layer(get_inv_layer(s_beams[3]), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(MINS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
         util_animate_layer(text_layer_get_layer(g_digits[4]), GRect(MINS_UNITS_X, 53, 50, 60), GRect(MINS_UNITS_X, -50, 50, 60), 200, 700);
       }
-       
+
       // Only change minutes tens if its changed
       if((g_state_now[2] != g_state_prev[2]) || (DEBUG_MODE)) {
         util_animate_layer(get_inv_layer(s_beams[2]), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(MINS_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
         util_animate_layer(text_layer_get_layer(g_digits[3]), GRect(MINS_TENS_X, 53, 50, 60), GRect(MINS_TENS_X, -50, 50, 60), 200, 700);
       }
-       
+
       // Only change hours units if its changed
       if((g_state_now[1] != g_state_prev[1]) || (DEBUG_MODE)) {
         util_animate_layer(get_inv_layer(s_beams[1]), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOURS_UNITS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
         util_animate_layer(text_layer_get_layer(g_digits[1]), GRect(HOURS_UNITS_X, 53, 50, 60), GRect(HOURS_UNITS_X, -50, 50, 60), 200, 700);
       }
-       
+
       // Only change hours tens if its changed
       if((g_state_now[0] != g_state_prev[0]) || (DEBUG_MODE)) {
         util_animate_layer(get_inv_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
         util_animate_layer(text_layer_get_layer(g_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60), GRect(HOUR_TENS_X, -50, 50, 60), 200, 700);
       }
-      break;      
+      break;
   }
 }
 
@@ -236,7 +236,7 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
 
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
-  
+
   // Allocate text layers
   g_digits[0] = util_gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[0]));
@@ -256,19 +256,19 @@ static void window_load(Window *window) {
   // Allocate inverter layers
   for(int i = 0; i < 4; i++) {
     s_beams[i] = create_inv_layer(GRect(0, 0, BEAM_WIDTH, 0));
-    layer_add_child(window_layer, get_inv_layer(s_beams[i]));  
+    layer_add_child(window_layer, get_inv_layer(s_beams[i]));
   }
   s_seconds_layer = create_inv_layer(GRect(0, 0, 144, 0));
   #ifdef PBL_PLATFORM_BASALT
-  inverter_layer_compat_set_colors(fg_color, bg_color);    
+  inverter_layer_compat_set_colors(fg_color, bg_color);
   #endif
   layer_add_child(window_layer, get_inv_layer(s_seconds_layer));
 
   // Make sure the face is not blank
-  time_t temp = time(NULL);  
-  struct tm *t = localtime(&temp);  
+  time_t temp = time(NULL);
+  struct tm *t = localtime(&temp);
   util_write_time_digits(t);
-  
+
   // Stop 'all change' on first minute
   for(int i = 0; i < 4; i++) {
     g_state_prev[i] = g_state_now[i];
@@ -306,7 +306,7 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, get_inv_layer(s_battery_layer));
   }
 
-  // Set time digits now  
+  // Set time digits now
   util_show_time_digits();
 
   // Init seconds bar
@@ -322,7 +322,7 @@ static void window_load(Window *window) {
   }
 }
 
-static void window_unload(Window *window) {  
+static void window_unload(Window *window) {
   // Free text layers
   for(int i = 0; i < 5; i++) {
     text_layer_destroy(g_digits[i]);
@@ -331,7 +331,7 @@ static void window_unload(Window *window) {
 
   bitmap_layer_destroy(s_bt_layer);
   gbitmap_destroy(s_bt_bitmap);
-  
+
   // Free inverter layers
   for(int i = 0; i < 4; i++) {
     destroy_inv_layer(s_beams[i]);
@@ -396,7 +396,7 @@ static void init() {
   }
   if(comm_get_setting(PERSIST_KEY_BATTERY)) {
     accel_tap_service_subscribe(tap_handler);
-  }  
+  }
 
   // Create main window
   s_main_window = window_create();

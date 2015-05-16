@@ -33,7 +33,6 @@
 #define THEME_MIDNIGHT         5
 #define THEME_YELLOW           6
 
-// Globals
 extern TextLayer *g_digits[5];
 extern TextLayer *g_date_layer;
 extern int g_state_now[4];

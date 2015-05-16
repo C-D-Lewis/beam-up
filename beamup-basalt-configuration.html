@@ -42,9 +42,6 @@
         <td>Vibrate on the hour</td><td><input id='check_hourly' type='checkbox'/></td>
       </tr>
       <tr>
-        <td>Vibrate on the hour</td><td><input id="check_hourly" type="checkbox"/></td>
-      </tr>
-      <tr>
         <td>Vibration type on the hour</td><td>
           <select id='hourly_vibe_select'>
             <option value='0'>Beam Up</option>
@@ -108,7 +105,7 @@
           persistWrite('hourly', 'false');
           persistWrite('theme', 'classic');
           persistWrite('hourly_vibe', 0);
-          persistWrite('bluetooth_vibe', 1);
+          persistWrite('bluetooth_vibe', 2);
         }
       }
 
@@ -135,7 +132,7 @@
           }
         }
 
-        var vibe = '' + persistRead('bluetooth_vibe', 1);
+        var vibe = '' + persistRead('bluetooth_vibe', 2);
         var bluetoothVibeSelect = document.getElementById('bluetooth_vibe_select');
         for(var i = 0; i < bluetoothVibeSelect.options.length; i += 1) {
           if(bluetoothVibeSelect.options[i].value == vibe) {
