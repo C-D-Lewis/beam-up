@@ -19,7 +19,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
     'PERSIST_KEY_BT': '' + json.bluetooth,
     'PERSIST_KEY_BATTERY': '' + json.battery,
     'PERSIST_KEY_HOURLY': '' + json.hourly,
-    'PERSIST_KEY_THEME': '' + json.theme
+    'PERSIST_KEY_THEME': '' + json.theme,
+    'PERSIST_KEY_H_VIBE': +json.hourly_vibe,
+    'PERSIST_KEY_BT_VIBE': +json.bluetooth_vibe
   };
 
   Pebble.sendAppMessage(options,
@@ -29,4 +31,4 @@ Pebble.addEventListener('webviewclosed', function(e) {
     function(e) {
       console.log('Settings update failed: ' + JSON.stringify(e));
     });
-}); 
+});
