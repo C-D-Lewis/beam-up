@@ -16,6 +16,7 @@ int g_state_prev[4];
 char g_time_buffer[5];
 char g_date_buffer[8];
 bool g_do_animations;
+bool g_do_animate_every_second;
 
 // UI elements
 static Window *s_main_window;
@@ -139,7 +140,10 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
         g_state_prev[0] = g_state_now[0];   
       }
 
-      seconds_tick(seconds);
+      if (g_do_animate_every_second) {
+        seconds_tick(seconds);
+      }
+
       break;
 
     // Safetly for bad animation at t=2s
@@ -159,7 +163,24 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
       // Get the time
       util_show_time_digits(t);
 
+      if (g_do_animate_every_second) {
+        seconds_tick(seconds);
+      }
+
+      break;
+
+    // On the second prior, set up the animation to arrive at the next second.
+    case 14:
+    case 29:
+    case 44:
       seconds_tick(seconds);
+      break;
+
+    case 58:
+      // If we're not animating every second, there's a bit of a fib, here.
+      // We're going to fill the seconds bar one second early since the following second
+      // we're going to reset it to zero.
+      seconds_tick(seconds + (g_do_animate_every_second ? 0 : 1));
       break;
 
     // Beam down
@@ -197,8 +218,11 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
       break;
 
     default:
-      // For all the other ticks, just change the seconds.
-      seconds_tick(seconds);
+      if (g_do_animate_every_second) {
+        // For all the other ticks, just change the seconds.
+        seconds_tick(seconds);
+      }
+
       break;
   }
 }
@@ -280,6 +304,7 @@ static void window_load(Window *window) {
 
   // User settings
   g_do_animations = comm_get_setting(PERSIST_KEY_ANIM);
+  g_do_animate_every_second = g_do_animations && comm_get_setting(PERSIST_KEY_ANIM_EVERY_SECOND);
   g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
   if(comm_get_setting(PERSIST_KEY_DATE)) {
     layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
@@ -312,6 +337,20 @@ static void window_load(Window *window) {
 
   // Set time digits now  
   util_show_time_digits();
+
+  if (g_do_animations && !g_do_animate_every_second) {
+    // Since it might be a bit before a 15-second tick, init the seconds bar
+    int seconds = t->tm_sec;
+    if(seconds >= 15 && seconds < 30) {
+      seconds_tick(14);
+    } else if(seconds >= 30 && seconds < 45) {
+      seconds_tick(29);
+    } else if(seconds >= 45 && seconds < 58) {
+      seconds_tick(44);
+    } else if(seconds >= 59) {
+      seconds_tick_to_zero();
+    }
+  }
 }
 
 static void window_unload(Window *window) {  
