@@ -14,12 +14,13 @@
 #define X_OFFSET 14
 
 // Settings keys
-#define PERSIST_KEY_DATE     1
-#define PERSIST_KEY_ANIM     2
-#define PERSIST_KEY_BT       3
-#define PERSIST_KEY_BATTERY  4
-#define PERSIST_KEY_HOURLY   5
-#define PERSIST_KEY_THEME    6
+#define PERSIST_KEY_DATE              1
+#define PERSIST_KEY_ANIM              2
+#define PERSIST_KEY_BT                3
+#define PERSIST_KEY_BATTERY           4
+#define PERSIST_KEY_HOURLY            5
+#define PERSIST_KEY_THEME             6
+#define PERSIST_KEY_ANIM_EVERY_SECOND 7
 
 #define THEME_CLASSIC          0
 #define THEME_GREEN            1

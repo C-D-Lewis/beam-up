@@ -2,6 +2,11 @@
 <html>
   <head>
     <title>Beam Up Configuration</title>
+    <style type="text/css">
+        .disabled {
+            color: darkgrey;
+        }
+    </style>
   </head>
   <body>
     <h2>Beam Up Configuration</h2>
@@ -21,25 +26,34 @@
     </select>
 
     <hr />
- 
+
     <h3>Features</h3>
 
     </p>
     <table>
       <tr>
-        <td>Show short date</td><td><input id='check_date' type='checkbox'/>
+        <td><label for='check_date'>Show short date</label></td>
+        <td><input id='check_date' type='checkbox'/></td>
       </tr>
       <tr>
-        <td>Animations</td><td><input id='check_animations' type='checkbox'/>
+        <td><label for='check_animations'>Animations</label></td>
+        <td><input id='check_animations' type='checkbox' onchange='enable_animate_every_second(this.checked)' /></td>
       </tr>
       <tr>
-        <td>Show disconnected indicator</td><td><input id='check_bluetooth' type='checkbox'/></td>
+        <td><label for='check_animate_every_second' id='label_animate_every_second'>Animate every second</label></td>
+        <td><input id='check_animate_every_second' type='checkbox'/></td>
       </tr>
       <tr>
-        <td>Shake to show battery level</td><td><input id='check_battery' type='checkbox'/>
+        <td><label for='check_bluetooth'>Show disconnected indicator</label></td>
+        <td><input id='check_bluetooth' type='checkbox'/></td>
       </tr>
       <tr>
-        <td>Vibrate on the hour</td><td><input id='check_hourly' type='checkbox'/>
+        <td><label for='check_battery'>Shake to show battery level</label></td>
+        <td><input id='check_battery' type='checkbox'/></td>
+      </tr>
+      <tr>
+        <td><label for='check_hourly'>Vibrate on the hour</label></td>
+        <td><input id='check_hourly' type='checkbox'/></td>
       </tr>
     </table>
 
@@ -73,6 +87,39 @@
         }
       };
 
+      // http://youmightnotneedjquery.com/#add_class
+      function addClass(el, className) {
+        if (el.classList) {
+          el.classList.add(className);
+        }
+        else {
+          el.className += ' ' + className;
+        }
+      }
+
+      // http://youmightnotneedjquery.com/#remove_class
+      function removeClass(el, className) {
+        if (el.classList) {
+          el.classList.remove(className);
+        }
+        else {
+          el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+        }
+      }
+
+      function enable_animate_every_second(enable) {
+        var label = document.getElementById('label_animate_every_second');
+
+        if (enable) {
+          removeClass(label, 'disabled');
+        }
+        else {
+          addClass(label, 'disabled');
+        }
+
+        document.getElementById('check_animate_every_second').disabled = !enable;
+      }
+
       function firstTimeSetup() {
         if(!persistRead('first-time', false)) {
           persistWrite('first-time', true);
@@ -81,6 +128,7 @@
           // Align with watchapp defaults
           persistWrite('date', 'false');
           persistWrite('animations', 'true');
+          persistWrite('animate_every_second', 'true');
           persistWrite('bluetooth', 'true');
           persistWrite('battery', 'false');
           persistWrite('hourly', 'false');
@@ -90,7 +138,10 @@
 
       function loadConfig() {
         document.getElementById('check_date').checked = persistRead('date', 'false') === 'true';
-        document.getElementById('check_animations').checked = persistRead('animations', 'true') === 'true';
+        var animations = persistRead('animations', 'true') === 'true';
+        document.getElementById('check_animations').checked = animations;
+        enable_animate_every_second(animations);
+        document.getElementById('check_animate_every_second').checked = persistRead('animate_every_second', 'false') === 'true';
         document.getElementById('check_bluetooth').checked = persistRead('bluetooth', 'true') === 'true';
         document.getElementById('check_battery').checked = persistRead('battery', 'false') === 'true';
         document.getElementById('check_hourly').checked = persistRead('hourly', 'false') === 'true';
@@ -113,10 +164,47 @@
         xhr.send();
       };
 
+      // Based on http://stackoverflow.com/a/21152762/297468
+      function getQueryParams() {
+        var params = {};
+        var query = location.search.substr(1);
+
+        if (query.length > 0)
+        {
+          var vars = query.split("&");
+
+          for (var i = 0; i < vars.length; i++) {
+            var keyValue = vars[i].split("=");
+            var key = keyValue[0];
+            var value = keyValue[1] && decodeURIComponent(keyValue[1]);
+
+            if (key in params) {
+              params[key].push(value);
+            }
+            else {
+              params[key] = [value];
+            }
+          }
+        }
+
+        return params;
+      }
+
+      function getQueryParam(name, defaultValue) {
+        var params = getQueryParams();
+
+        if (name in params) {
+          return params[name];
+        }
+        else {
+          return [defaultValue];
+        }
+      }
+
       function getAppVersionAndNews() {
         //Get latest
         xhrAsyncRequest(
-          'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json', 
+          'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json',
           'GET',
           function(responseText) {
             var json = JSON.parse(responseText);
@@ -126,19 +214,19 @@
         );
 
         //Get local
-        var version = '' + document.location;
-        version = version.substring(version.indexOf('version=') + 'version='.length);
+        var version = getQueryParam('version', '');
         document.getElementById('current_version').innerHTML = 'Current version: ' + version;
       }
 
       var submitButton = document.getElementById('save_button');
-      submitButton.addEventListener('click', 
+      submitButton.addEventListener('click',
         function() {
           var themeSelect = document.getElementById('theme_select');
 
           var options = {
             'date': document.getElementById('check_date').checked ? 'true' : 'false',
             'animations': document.getElementById('check_animations').checked ? 'true' : 'false',
+            'animate_every_second': document.getElementById('check_animate_every_second').checked ? 'true' : 'false',
             'bluetooth': document.getElementById('check_bluetooth').checked ? 'true' : 'false',
             'battery': document.getElementById('check_battery').checked ? 'true' : 'false',
             'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false',
@@ -148,14 +236,18 @@
           // Save
           persistWrite('date', options['date']);
           persistWrite('animations', options['animations']);
+          persistWrite('animate_every_second', options['animate_every_second']);
           persistWrite('bluetooth', options['bluetooth']);
           persistWrite('battery', options['battery']);
           persistWrite('hourly', options['hourly']);
           persistWrite('theme', options['theme']);
 
+          // We need to do this in order for settings to work in the emulator
+          // http://developer.getpebble.com/guides/pebble-apps/pebblekit-js/app-configuration/#testing-in-the-sdk-emulator
+          var return_to = getQueryParam('return_to', 'pebblejs://close#')[0];
           // Return
-          document.location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
-        }, 
+          document.location = return_to + encodeURIComponent(JSON.stringify(options));
+        },
       false);
 
       firstTimeSetup();

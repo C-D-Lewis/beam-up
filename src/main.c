@@ -16,6 +16,7 @@ int g_state_prev[4];
 char g_time_buffer[5];
 char g_date_buffer[8];
 bool g_do_animations;
+bool g_do_animate_every_second;
 
 // UI elements
 static Window *s_main_window;
@@ -54,6 +55,42 @@ static void destroy_inv_layer(InverterLayerCompat *this) {
   inverter_layer_compat_destroy(this);
 }
 #endif
+
+static GRect calc_seconds_width(GRect rect, int seconds) {
+  int width = (int)(((144.0 / 60.0) * (float)seconds) + 0.5);
+  return GRect(rect.origin.x, rect.origin.y, width, rect.size.h);
+}
+
+// As of Pebble firmare 2.9.1 and Pebble Time firmware 3.4, having an animation on this layer
+// end too close (< ~50ms) to the start of the next animation on this same layer causes The
+// animations to jump back slightly, even in the emulator.
+// Perhaps animations actually run a little longer than specified?
+static void animate_seconds(int target_seconds, int duration, int delay) {
+  if(!g_do_animations) {
+    return;
+  }
+
+  if (duration + delay > 1000) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "duration (%d) + delay (%d) for animate_seconds must be <= 1000", duration, delay);
+    return;
+  }
+
+  Layer* seconds_root_layer = get_inv_layer(s_seconds_layer);
+  GRect sec_rect_current = layer_get_frame(seconds_root_layer);
+  GRect sec_rect_target = calc_seconds_width(sec_rect_current, target_seconds);
+
+  util_animate_layer(seconds_root_layer, sec_rect_current, sec_rect_target, duration, delay);
+}
+
+static void seconds_tick(int current_seconds) {
+  // See comments above animate_seconds. This timing is tuned to avoid that issue.
+  animate_seconds(current_seconds + 1, 250, 700);
+}
+
+static void seconds_tick_to_zero() {
+  // See comments above animate_seconds. This timing is tuned to avoid that issue.
+  animate_seconds(0, 250, 700);
+}
 
 static void handle_tick(struct tm *t, TimeUnits units_changed) {  
   // Get the time
@@ -102,9 +139,11 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
         util_animate_layer(get_inv_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), 400, 500);
         g_state_prev[0] = g_state_now[0];   
       }
-       
-      // Bottom surface down
-      util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
+
+      if (g_do_animate_every_second) {
+        seconds_tick(seconds);
+      }
+
       break;
 
     // Safetly for bad animation at t=2s
@@ -123,30 +162,32 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
 
       // Get the time
       util_show_time_digits(t);
+
+      if (g_do_animate_every_second) {
+        seconds_tick(seconds);
+      }
+
       break;
 
-    // 15 seconds bar
-    case 15:
-      util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
+    // On the second prior, set up the animation to arrive at the next second.
+    case 14:
+    case 29:
+    case 44:
+      seconds_tick(seconds);
       break;
 
-    // 30 seconds bar
-    case 30:
-      util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
-      break;
-
-    // 45 seconds bar
-    case 45:
-      util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
-      break;
-
-    // Complete bar
     case 58:
-      util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
+      // If we're not animating every second, there's a bit of a fib, here.
+      // We're going to fill the seconds bar one second early since the following second
+      // we're going to reset it to zero.
+      seconds_tick(seconds + (g_do_animate_every_second ? 0 : 1));
       break;
 
     // Beam down
     case 59:
+      // Unless there's a leap second, the next one will be 0.
+      seconds_tick_to_zero();
+
       // Predict next changes
       util_predict_next_change(t); // CALLS util_write_time_digits()
        
@@ -173,7 +214,16 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
         util_animate_layer(get_inv_layer(s_beams[0]), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
         util_animate_layer(text_layer_get_layer(g_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60), GRect(HOUR_TENS_X, -50, 50, 60), 200, 700);
       }
-      break;      
+
+      break;
+
+    default:
+      if (g_do_animate_every_second) {
+        // For all the other ticks, just change the seconds.
+        seconds_tick(seconds);
+      }
+
+      break;
   }
 }
 
@@ -234,7 +284,9 @@ static void window_load(Window *window) {
     s_beams[i] = create_inv_layer(GRect(0, 0, BEAM_WIDTH, 0));
     layer_add_child(window_layer, get_inv_layer(s_beams[i]));  
   }
-  s_seconds_layer = create_inv_layer(GRect(0, 0, 144, 0));
+
+  s_seconds_layer = create_inv_layer(GRect(0, 105, 0, 5));
+
   #ifdef PBL_PLATFORM_BASALT
   inverter_layer_compat_set_colors(fg_color, bg_color);    
   #endif
@@ -252,6 +304,7 @@ static void window_load(Window *window) {
 
   // User settings
   g_do_animations = comm_get_setting(PERSIST_KEY_ANIM);
+  g_do_animate_every_second = g_do_animations && comm_get_setting(PERSIST_KEY_ANIM_EVERY_SECOND);
   g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
   if(comm_get_setting(PERSIST_KEY_DATE)) {
     layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
@@ -285,16 +338,18 @@ static void window_load(Window *window) {
   // Set time digits now  
   util_show_time_digits();
 
-  // Init seconds bar
-  int seconds = t->tm_sec;
-  if(seconds >= 15 && seconds < 30) {
-    util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
-  } else if(seconds >= 30 && seconds < 45) {
-    util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 0, 5), GRect(0, 105, 72, 5), 500, 0);
-  } else if(seconds >= 45 && seconds < 58) {
-    util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 0, 5), GRect(0, 105, 108, 5), 500, 0);
-  } else if(seconds >= 58) {
-    util_animate_layer(get_inv_layer(s_seconds_layer), GRect(0, 105, 0, 5), GRect(0, 105, 144, 5), 500, 1000);
+  if (g_do_animations && !g_do_animate_every_second) {
+    // Since it might be a bit before a 15-second tick, init the seconds bar
+    int seconds = t->tm_sec;
+    if(seconds >= 15 && seconds < 30) {
+      seconds_tick(14);
+    } else if(seconds >= 30 && seconds < 45) {
+      seconds_tick(29);
+    } else if(seconds >= 45 && seconds < 58) {
+      seconds_tick(44);
+    } else if(seconds >= 59) {
+      seconds_tick_to_zero();
+    }
   }
 }
 

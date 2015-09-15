@@ -16,6 +16,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
   var options = {
     'PERSIST_KEY_DATE': '' + json.date,
     'PERSIST_KEY_ANIM': '' + json.animations,
+    'PERSIST_KEY_ANIM_EVERY_SECOND': '' + json.animate_every_second,
     'PERSIST_KEY_BT': '' + json.bluetooth,
     'PERSIST_KEY_BATTERY': '' + json.battery,
     'PERSIST_KEY_HOURLY': '' + json.hourly,
