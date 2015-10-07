@@ -19,10 +19,10 @@ bool g_do_animations;
 
 // UI elements
 static Window *s_main_window;
-#ifdef PBL_PLATFORM_APLITE
+#ifdef PBL_SDK_2
 static InverterLayer *s_beams[4];
 static InverterLayer *s_seconds_layer, *s_battery_layer;
-#elif PBL_PLATFORM_BASALT
+#elif PBL_SDK_3
 static InverterLayerCompat *s_beams[4];
 static InverterLayerCompat *s_seconds_layer, *s_battery_layer;
 #endif
@@ -31,9 +31,10 @@ static GBitmap *s_bt_bitmap;
 
 // Data
 static bool s_tapped;
-static GColor bg_color, fg_color;
+static GColor s_bg_color, s_fg_color;
+static GRect s_screen_bounds;
 
-#ifdef PBL_PLATFORM_APLITE
+#ifdef PBL_SDK_2
 static InverterLayer* create_inv_layer(GRect bounds) {
   return inverter_layer_create(bounds);
 }
@@ -43,7 +44,7 @@ static Layer* get_inv_layer(InverterLayer *this) {
 static void destroy_inv_layer(InverterLayer *this) {
   inverter_layer_destroy(this);
 }
-#elif PBL_PLATFORM_BASALT
+#elif PBL_SDK_3
 static InverterLayerCompat* create_inv_layer(GRect bounds) {
   return inverter_layer_compat_create(bounds);
 }
@@ -212,21 +213,21 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
 
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_bounds(window_layer);
+
+  s_screen_bounds = bounds;
   
   // Allocate text layers
-  g_digits[0] = util_gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[0] = util_gen_text_layer(GRect(HOUR_TENS_X, 53, 50, 60), s_fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[1] = util_gen_text_layer(GRect(HOURS_UNITS_X, 53, 50, 60), s_fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[2] = util_gen_text_layer(GRect(68, 53, 50, 60), s_fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
+  g_digits[3] = util_gen_text_layer(GRect(MINS_TENS_X, 53, 50, 60), s_fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  g_digits[4] = util_gen_text_layer(GRect(MINS_UNITS_X, 53, 50, 60), s_fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
+  
   layer_add_child(window_layer, text_layer_get_layer(g_digits[0]));
-
-  g_digits[1] = util_gen_text_layer(GRect(HOURS_UNITS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[1]));
-
-  g_digits[2] = util_gen_text_layer(GRect(68, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentLeft);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[2]));
-
-  g_digits[3] = util_gen_text_layer(GRect(MINS_TENS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[3]));
-
-  g_digits[4] = util_gen_text_layer(GRect(MINS_UNITS_X, 53, 50, 60), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_48, NULL, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(g_digits[4]));
 
   // Allocate inverter layers
@@ -235,8 +236,8 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, get_inv_layer(s_beams[i]));  
   }
   s_seconds_layer = create_inv_layer(GRect(0, 0, 144, 0));
-  #ifdef PBL_PLATFORM_BASALT
-  inverter_layer_compat_set_colors(fg_color, bg_color);    
+  #ifdef PBL_SDK_3
+  inverter_layer_compat_set_colors(s_fg_color, s_bg_color);    
   #endif
   layer_add_child(window_layer, get_inv_layer(s_seconds_layer));
 
@@ -252,14 +253,14 @@ static void window_load(Window *window) {
 
   // User settings
   g_do_animations = comm_get_setting(PERSIST_KEY_ANIM);
-  g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
+  g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), s_fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
   if(comm_get_setting(PERSIST_KEY_DATE)) {
     layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
   }
   s_bt_layer = bitmap_layer_create(GRect(59, 140, 27, 26));
-#ifdef PBL_PLATFORM_APLITE
+#ifdef PBL_SDK_2
   s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT);
-#elif PBL_PLATFORM_BASALT
+#elif PBL_SDK_3
   if(comm_get_theme() == THEME_CLASSIC_INVERTED) {
     s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT_INV);
   } else {
@@ -267,7 +268,7 @@ static void window_load(Window *window) {
   }
 #endif
   bitmap_layer_set_bitmap(s_bt_layer, s_bt_bitmap);
-#ifdef PBL_PLATFORM_BASALT
+#ifdef PBL_SDK_3
   bitmap_layer_set_compositing_mode(s_bt_layer, GCompOpSet);
 #endif
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bt_layer));
@@ -322,42 +323,42 @@ static void init() {
   comm_first_time_setup();
 
   // Setup colors
-#ifdef PBL_PLATFORM_APLITE
-  fg_color = GColorWhite;
-  bg_color = GColorBlack;
-#elif PBL_PLATFORM_BASALT
+#ifdef PBL_SDK_2
+  s_fg_color = GColorWhite;
+  s_bg_color = GColorBlack;
+#elif PBL_SDK_3
   switch(comm_get_theme()) {
     case THEME_CLASSIC:
-      fg_color = GColorWhite;
-      bg_color = GColorBlack;
+      s_fg_color = GColorWhite;
+      s_bg_color = GColorBlack;
       break;
     case THEME_CLASSIC_INVERTED:
-      fg_color = GColorBlack;
-      bg_color = GColorWhite;
+      s_fg_color = GColorBlack;
+      s_bg_color = GColorWhite;
       break;
     case THEME_GREEN:
-      fg_color = GColorMintGreen;
-      bg_color = GColorIslamicGreen;
+      s_fg_color = GColorMintGreen;
+      s_bg_color = GColorIslamicGreen;
       break;
     case THEME_BLUE:
-      fg_color = GColorElectricBlue;
-      bg_color = GColorBlueMoon;
+      s_fg_color = GColorElectricBlue;
+      s_bg_color = GColorBlueMoon;
       break;
     case THEME_RED:
-      fg_color = GColorMelon;
-      bg_color = GColorRed;
+      s_fg_color = GColorMelon;
+      s_bg_color = GColorRed;
       break;
     case THEME_YELLOW:
-      fg_color = GColorPastelYellow;
-      bg_color = GColorChromeYellow;
+      s_fg_color = GColorPastelYellow;
+      s_bg_color = GColorChromeYellow;
       break;
     case THEME_MIDNIGHT:
-      fg_color = GColorWhite;
-      bg_color = GColorOxfordBlue;
+      s_fg_color = GColorWhite;
+      s_bg_color = GColorOxfordBlue;
       break;
     default:
-      fg_color = GColorWhite;
-      bg_color = GColorBlack;
+      s_fg_color = GColorWhite;
+      s_bg_color = GColorBlack;
       break;
   }
 #endif
@@ -376,7 +377,7 @@ static void init() {
 
   // Create main window
   s_main_window = window_create();
-  window_set_background_color(s_main_window, bg_color);
+  window_set_background_color(s_main_window, s_bg_color);
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = window_load,
     .unload = window_unload

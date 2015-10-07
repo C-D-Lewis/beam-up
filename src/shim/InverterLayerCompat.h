@@ -7,7 +7,7 @@
  * - Due to shared framebuffer, there can only be one color set
  */
 
-#ifdef PBL_PLATFORM_BASALT
+#ifdef PBL_SDK_3
 #pragma once
 
 #include <pebble.h>

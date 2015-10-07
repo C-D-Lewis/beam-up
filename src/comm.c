@@ -8,7 +8,7 @@ static void in_recv_handler(DictionaryIterator *iter, void *context) {
       // Super settings one liner!
       persist_write_bool(t->key, strcmp(t->value->cstring, "true") == 0 ? true : false);
     } else {
-#ifdef PBL_PLATFORM_BASALT
+#ifdef PBL_SDK_3
       switch(t->key) {
         case PERSIST_KEY_THEME:
           // Parse theme string
