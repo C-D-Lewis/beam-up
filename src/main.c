@@ -19,7 +19,7 @@ bool g_do_animations;
 
 // UI elements
 static Window *s_main_window;
-static Layer *s_beams[4], *s_seconds_layer, *s_battery_layer;
+static Layer *s_beams[4], *s_seconds_layer, *s_battery_layer, *s_inv_layer;
 static BitmapLayer *s_bt_layer;
 static GBitmap *s_bt_bitmap;
 
@@ -32,6 +32,14 @@ static void invert_update_proc(Layer *layer, GContext *ctx) {
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
   universal_fb_swap_colors(fb, layer_get_frame(layer), s_fg_color, s_bg_color);
   graphics_release_frame_buffer(ctx, fb);
+}
+
+static void inv_anim() {
+  // Prevent overdraw by only drawing once per frame
+  GRect bounds = layer_get_bounds(s_inv_layer);
+  GRect bounds_after = layer_get_bounds(s_inv_layer);
+  bounds_after.size.h *= 2;
+  util_animate_layer(s_inv_layer, bounds, bounds_after, 0, 1000);
 }
 
 static void handle_tick(struct tm *t, TimeUnits units_changed) {  
@@ -84,6 +92,8 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
        
       // Bottom surface down
       util_animate_layer(s_seconds_layer, GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
+
+      inv_anim();
       break;
 
     // Safetly for bad animation at t=2s
@@ -107,21 +117,25 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
     // 15 seconds bar
     case 15:
       util_animate_layer(s_seconds_layer, GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
+      inv_anim();
       break;
 
     // 30 seconds bar
     case 30:
       util_animate_layer(s_seconds_layer, GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
+      inv_anim();
       break;
 
     // 45 seconds bar
     case 45:
       util_animate_layer(s_seconds_layer, GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
+      inv_anim();
       break;
 
     // Complete bar
     case 58:
       util_animate_layer(s_seconds_layer, GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
+      inv_anim();
       break;
 
     // Beam down
@@ -152,6 +166,8 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
         util_animate_layer(s_beams[0], GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
         util_animate_layer(text_layer_get_layer(g_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60), GRect(HOUR_TENS_X, -50, 50, 60), 200, 700);
       }
+
+      inv_anim();
       break;      
   }
 }
@@ -211,11 +227,9 @@ static void window_load(Window *window) {
   // Allocate inverter layers
   for(int i = 0; i < 4; i++) {
     s_beams[i] = layer_create(GRect(0, 0, BEAM_WIDTH, 0));
-    layer_set_update_proc(s_beams[i], invert_update_proc);
     layer_add_child(window_layer, s_beams[i]);  
   }
   s_seconds_layer = layer_create(GRect(0, 0, 144, 0));
-    layer_set_update_proc(s_seconds_layer, invert_update_proc);
   layer_add_child(window_layer, s_seconds_layer);
 
   // Make sure the face is not blank
@@ -256,10 +270,14 @@ static void window_load(Window *window) {
     }
   }
   s_battery_layer = layer_create(GRect(0, 165, 0, 3));
-  layer_set_update_proc(s_battery_layer, invert_update_proc);
   if(comm_get_setting(PERSIST_KEY_BATTERY)) {
     layer_add_child(window_layer, s_battery_layer);
   }
+
+  // Invert once per frame
+  s_inv_layer = layer_create(bounds);
+  layer_set_update_proc(s_inv_layer, invert_update_proc);
+  layer_add_child(window_layer, s_inv_layer);
 
   // Set time digits now  
   util_show_time_digits();
@@ -293,6 +311,7 @@ static void window_unload(Window *window) {
   }
   layer_destroy(s_seconds_layer);
   layer_destroy(s_battery_layer);
+  layer_destroy(s_inv_layer);
 }
 
 static void init() {
