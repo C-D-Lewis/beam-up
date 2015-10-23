@@ -109,7 +109,9 @@ TextLayer* util_gen_text_layer(GRect location, GColor colour, GColor background,
  * Internal Animation disposal
  */
 static void on_animation_stopped(Animation *anim, bool finished, void *context) {
+#if defined(PBL_SDK_2)
   property_animation_destroy((PropertyAnimation*) anim);
+#endif
 }
 
 /*
