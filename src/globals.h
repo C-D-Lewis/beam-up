@@ -2,15 +2,16 @@
 
 #include <pebble.h>
 
-#define DEBUG_MODE true
+#define DEBUG_MODE false
 
 // Layout
+#define ROUND_MARGIN PBL_IF_ROUND_ELSE(18, 0)
 #define BEAM_WIDTH 30
 #define BEAM_HEIGHT 101
-#define HOUR_TENS_X -13 
-#define HOURS_UNITS_X 21
-#define MINS_TENS_X 63
-#define MINS_UNITS_X 97
+#define HOUR_TENS_X -13 + ROUND_MARGIN
+#define HOURS_UNITS_X 21 + ROUND_MARGIN
+#define MINS_TENS_X 63 + ROUND_MARGIN
+#define MINS_UNITS_X 97 + ROUND_MARGIN
 #define X_OFFSET 14
 
 // Settings keys

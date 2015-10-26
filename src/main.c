@@ -231,7 +231,11 @@ static void window_load(Window *window) {
 
   // User settings
   g_do_animations = comm_get_setting(PERSIST_KEY_ANIM);
+#if defined(PBL_ROUND)
+  g_date_layer = util_gen_text_layer(GRect(0, 105, 180, 30), s_fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentCenter);
+#else
   g_date_layer = util_gen_text_layer(GRect(45, 105, 100, 30), s_fg_color, GColorClear, true, RESOURCE_ID_FONT_IMAGINE_24, NULL, GTextAlignmentRight);
+#endif
   if(comm_get_setting(PERSIST_KEY_DATE)) {
     layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
   }
@@ -311,6 +315,7 @@ static void init() {
   s_fg_color = GColorWhite;
   s_bg_color = GColorBlack;
 #elif PBL_SDK_3
+  /*
   switch(comm_get_theme()) {
     case THEME_CLASSIC:
       s_fg_color = GColorWhite;
@@ -345,13 +350,16 @@ static void init() {
       s_bg_color = GColorBlack;
       break;
   }
+  */
+  s_fg_color = GColorWhite;
+  s_bg_color = GColorImperialPurple; 
 #endif
 
   // Localize
   setlocale(LC_ALL, "");
 
   // Subscribe to events
-  tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+  tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
   if(comm_get_setting(PERSIST_KEY_BT)) {
     bluetooth_connection_service_subscribe(bt_handler);
   }

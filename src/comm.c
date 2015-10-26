@@ -70,7 +70,10 @@ void comm_setup() {
 }
 
 bool comm_get_setting(int key) {
-  return persist_read_bool(key);
+  if(key == PERSIST_KEY_ANIM) return false; // No anims, they lag on Chalk now
+  if(key == PERSIST_KEY_DATE) return true;
+  if(key == PERSIST_KEY_BT) return true;
+  else return persist_read_bool(key);
 }
 
 int comm_get_theme() {
