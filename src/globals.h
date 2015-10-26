@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 
-#define DEBUG_MODE false
+#define DEBUG_MODE true
 
 // Layout
 #define BEAM_WIDTH 30

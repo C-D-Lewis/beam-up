@@ -30,16 +30,11 @@ static GRect s_screen_bounds;
 
 static void invert_update_proc(Layer *layer, GContext *ctx) {
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
-  universal_fb_swap_colors(fb, layer_get_frame(layer), s_fg_color, s_bg_color);
+  for(int i = 0; i < 4; i++) {
+    universal_fb_swap_colors(fb, layer_get_frame(s_beams[i]), s_fg_color, s_bg_color);
+  }
+  universal_fb_swap_colors(fb, layer_get_frame(s_seconds_layer), s_fg_color, s_bg_color);
   graphics_release_frame_buffer(ctx, fb);
-}
-
-static void inv_anim() {
-  // Prevent overdraw by only drawing once per frame
-  GRect bounds = layer_get_bounds(s_inv_layer);
-  GRect bounds_after = layer_get_bounds(s_inv_layer);
-  bounds_after.size.h *= 2;
-  util_animate_layer(s_inv_layer, bounds, bounds_after, 0, 1000);
 }
 
 static void handle_tick(struct tm *t, TimeUnits units_changed) {  
@@ -92,8 +87,6 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
        
       // Bottom surface down
       util_animate_layer(s_seconds_layer, GRect(0, 105, 144, 5), GRect(0, 105, 0, 5), 500, 500);
-
-      inv_anim();
       break;
 
     // Safetly for bad animation at t=2s
@@ -117,25 +110,21 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
     // 15 seconds bar
     case 15:
       util_animate_layer(s_seconds_layer, GRect(0, 105, 0, 5), GRect(0, 105, 36, 5), 500, 0);
-      inv_anim();
       break;
 
     // 30 seconds bar
     case 30:
       util_animate_layer(s_seconds_layer, GRect(0, 105, 36, 5), GRect(0, 105, 72, 5), 500, 0);
-      inv_anim();
       break;
 
     // 45 seconds bar
     case 45:
       util_animate_layer(s_seconds_layer, GRect(0, 105, 72, 5), GRect(0, 105, 108, 5), 500, 0);
-      inv_anim();
       break;
 
     // Complete bar
     case 58:
       util_animate_layer(s_seconds_layer, GRect(0, 105, 108, 5), GRect(0, 105, 144, 5), 500, 1000);
-      inv_anim();
       break;
 
     // Beam down
@@ -166,8 +155,6 @@ static void handle_tick(struct tm *t, TimeUnits units_changed) {
         util_animate_layer(s_beams[0], GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, 0), GRect(HOUR_TENS_X + X_OFFSET, 0, BEAM_WIDTH, BEAM_HEIGHT), 400, 0);
         util_animate_layer(text_layer_get_layer(g_digits[0]), GRect(HOUR_TENS_X, 53, 50, 60), GRect(HOUR_TENS_X, -50, 50, 60), 200, 700);
       }
-
-      inv_anim();
       break;      
   }
 }
