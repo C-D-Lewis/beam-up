@@ -1,32 +1,22 @@
-var VERSION = "2.8";
+var VERSION = "3.0";
+var DEBUG = false;
 
-/******************************** Pebble API **********************************/
+/********************************** Logging ***********************************/
 
-Pebble.addEventListener('ready', function(e) {
-  console.log('PebbleKit JS ready!');
+function info(content) {
+  console.log(content);
+}
+
+function debug(content) {
+  if(DEBUG) info(content);
+}
+
+/******************************** PebbleKit JS ********************************/
+
+Pebble.addEventListener('ready', function() {
+  info('PebbleKit JS ready! Version ' + VERSION);
 });
 
-Pebble.addEventListener('showConfiguration', function(e) {
-  Pebble.openURL('https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/beamup-basalt-configuration.html?version=' + VERSION);
+Pebble.addEventListener('appmessage', function(dict) {
+  debug('Got appmessage: ' + JSON.stringify(dict.payload));
 });
-
-Pebble.addEventListener('webviewclosed', function(e) {
-  var json = JSON.parse(decodeURIComponent(e.response));
-
-  var options = {
-    'PERSIST_KEY_DATE': '' + json.date,
-    'PERSIST_KEY_ANIM': '' + json.animations,
-    'PERSIST_KEY_BT': '' + json.bluetooth,
-    'PERSIST_KEY_BATTERY': '' + json.battery,
-    'PERSIST_KEY_HOURLY': '' + json.hourly,
-    'PERSIST_KEY_THEME': '' + json.theme
-  };
-
-  Pebble.sendAppMessage(options,
-    function(e) {
-      console.log('Settings update successful!');
-    },
-    function(e) {
-      console.log('Settings update failed: ' + JSON.stringify(e));
-    });
-}); 

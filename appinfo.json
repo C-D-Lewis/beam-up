@@ -1,24 +1,30 @@
 {
-  "versionLabel": "2.8",
+  "versionLabel": "3.0",
   "uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
   "longName": "Beam Up",
-  "versionCode": 13,
+  "versionCode": 14,
   "shortName": "Beam Up",
   "companyName": "Chris Lewis",
   "watchapp": {
     "watchface": true
   },
+  "targetPlatforms": [
+    "aplite",
+    "basalt",
+    "chalk"
+  ],
+  "sdkVersion": "3",
   "capabilities": [
     "configurable"
   ],
   "appKeys": {
-    "PERSIST_KEY_INVERTED": 0,
-    "PERSIST_KEY_DATE": 1,
-    "PERSIST_KEY_ANIM": 2,
-    "PERSIST_KEY_BT": 3,
-    "PERSIST_KEY_BATTERY": 4,
-    "PERSIST_KEY_HOURLY": 5,
-    "PERSIST_KEY_THEME": 6
+    "DataKeyDate": 0,
+    "DataKeyAnimations": 1,
+    "DataKeyBTIndicator": 2,
+    "DataKeyBatteryMeter": 3,
+    "DataKeyHourlyVibration": 4,
+    "DataKeyForegroundColor": 6,
+    "DataKeyBackgroundColor": 7
   },
   "resources": {
     "media": [
@@ -42,20 +48,14 @@
       },
       {
         "type": "png",
-        "name": "BT",
-        "file": "images/bt-bar.png"
+        "name": "BT_WHITE",
+        "file": "images/bt-bar-white.png"
       },
       {
         "type": "png",
-        "name": "BT_INV",
-        "file": "images/bt-bar-inv.png"
+        "name": "BT_BLACK",
+        "file": "images/bt-bar-black.png"
       }
     ]
-  },
-  "targetPlatforms": [
-    "aplite",
-    "basalt",
-    "chalk"
-  ],
-  "sdkVersion": "3"
+  }
 }
