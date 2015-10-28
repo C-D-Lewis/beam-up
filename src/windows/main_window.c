@@ -102,25 +102,25 @@ static void animate_beams(struct tm *tick_time) {
 
       // Animate stuff back into place
       Layer *digit_layer;
-      if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
-        digit_layer = text_layer_get_layer(s_digits[4]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        s_digit_states_prev[3] = s_digit_states_now[3];
-      }
-      if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
-        digit_layer = text_layer_get_layer(s_digits[3]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        s_digit_states_prev[2] = s_digit_states_now[2];   
+      if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
+        digit_layer = text_layer_get_layer(s_digits[0]);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
+        s_digit_states_prev[0] = s_digit_states_now[0];
       }
       if((s_digit_states_now[1] != s_digit_states_prev[1]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[1]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
         s_digit_states_prev[1] = s_digit_states_now[1];   
       }
-      if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
-        digit_layer = text_layer_get_layer(s_digits[0]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        s_digit_states_prev[0] = s_digit_states_now[0];   
+      if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
+        digit_layer = text_layer_get_layer(s_digits[3]);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
+        s_digit_states_prev[2] = s_digit_states_now[2];   
+      }
+      if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
+        digit_layer = text_layer_get_layer(s_digits[4]);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
+        s_digit_states_prev[3] = s_digit_states_now[3];   
       }
        
       // Bottom surface down
@@ -153,23 +153,19 @@ static void animate_beams(struct tm *tick_time) {
       // Predict next changes
       predict_next_change(tick_time);
 
-      // Only change minutes units if its changed
-      if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
+      if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
 
       }
        
-      // Only change minutes tens if its changed
-      if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
-
-      }
-       
-      // Only change hours units if its changed
       if((s_digit_states_now[1] != s_digit_states_prev[1]) || DEBUG) {
 
       }
        
-      // Only change hours tens if its changed
-      if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
+      if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
+
+      }
+       
+      if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
 
       }
       break;    
@@ -187,11 +183,11 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
-  s_digits[4] = text_layer_create(GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
-  s_digits[3] = text_layer_create(GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
+  s_digits[0] = text_layer_create(GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
+  s_digits[1] = text_layer_create(GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
   s_digits[2] = text_layer_create(GRect(COLON_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
-  s_digits[1] = text_layer_create(GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
-  s_digits[0] = text_layer_create(GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
+  s_digits[3] = text_layer_create(GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
+  s_digits[4] = text_layer_create(GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
 
   for(int i = 0; i < NUM_CHARS; i++) {
     text_layer_set_text_color(s_digits[i], data_get_foreground_color());
@@ -236,9 +232,22 @@ void main_window_push() {
 
   // Make sure the face is not blank
   time_t temp = time(NULL);  
-  struct tm *t = localtime(&temp); 
-  update_digit_values(t);
+  struct tm *time_now = localtime(&temp); 
+  update_digit_values(time_now);
   show_digit_values();
+
+  // Init seconds bar
+  GRect bounds = layer_get_bounds(window_get_root_layer(s_window));
+  int seconds = time_now->tm_sec;
+  if(seconds >= 15 && seconds < 30) {
+    animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0);
+  } else if(seconds >= 30 && seconds < 45) {
+    animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0);
+  } else if(seconds >= 45 && seconds < 58) {
+    animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0);
+  } else if(seconds >= 58) {
+    animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0);
+  }
 }
 
 void main_window_update_time(struct tm *tick_time) {
