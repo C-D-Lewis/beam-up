@@ -19,8 +19,14 @@ static void update_digit_values(struct tm *tick_time) {
 }
 
 static void show_digit_values() {
+  static char s_chars[5][2] = {"1", "2", ":", "3", "4"};
   for(int i = 0; i < NUM_CHARS; i++) {
-    text_layer_set_text(s_digits[i], &s_time_buffer[i]);
+    if(i != 2) {
+      s_chars[i][0] = s_time_buffer[i];
+      text_layer_set_text(s_digits[i], DEBUG ? "0" : s_chars[i]);
+    } else {
+      text_layer_set_text(s_digits[i], ":");
+    }
   }
 }
 
@@ -59,11 +65,12 @@ static void window_load(Window *window) {
   s_digits[1] = text_layer_create(GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
   s_digits[2] = text_layer_create(GRect(COLON_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
   s_digits[3] = text_layer_create(GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
-  s_digits[4] = text_layer_create(GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
+  s_digits[4] = text_layer_create(GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
 
   for(int i = 0; i < NUM_CHARS; i++) {
     text_layer_set_text_color(s_digits[i], data_get_foreground_color());
     text_layer_set_background_color(s_digits[i], GColorClear);
+    text_layer_set_text_alignment(s_digits[i], GTextAlignmentRight);
     text_layer_set_font(s_digits[i], fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IMAGINE_48)));
     layer_add_child(window_layer, text_layer_get_layer(s_digits[i]));
   }
@@ -71,7 +78,7 @@ static void window_load(Window *window) {
 
 static void window_unload(Window *window) {
   for(int i = 0; i < NUM_CHARS; i++) {
-    text_layer_destroy(s_digits[0]);
+    text_layer_destroy(s_digits[i]);
   }
 
   window_destroy(s_window);

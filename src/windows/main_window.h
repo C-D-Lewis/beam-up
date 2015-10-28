@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 
-#include "../values.h"
+#include "../config.h"
 
 #include "../modules/data.h"
 
