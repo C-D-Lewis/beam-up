@@ -149,25 +149,31 @@ static void animate_beams(struct tm *tick_time) {
       break;
 
     // Beams down
-    case 59:
+    case 59: {
       // Predict next changes
       predict_next_change(tick_time);
 
+      Layer *digit_layer;
       if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
-
+        digit_layer = text_layer_get_layer(s_digits[0]);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 400, 0);
       }
        
       if((s_digit_states_now[1] != s_digit_states_prev[1]) || DEBUG) {
-
+        digit_layer = text_layer_get_layer(s_digits[1]);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 400, 0);
       }
        
       if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
-
+        digit_layer = text_layer_get_layer(s_digits[3]);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 400, 0);
       }
        
       if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
-
+        digit_layer = text_layer_get_layer(s_digits[4]);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 400, 0);
       }
+    }
       break;    
   }
 }
@@ -215,11 +221,6 @@ static void window_unload(Window *window) {
 /************************************ API *************************************/
 
 void main_window_push() {
-  // Stop 'all change' on first minute
-  for(int i = 0; i < NUM_CHARS - 1; i++) {
-    s_digit_states_prev[i] = s_digit_states_now[i];
-  }
-
   if(!s_window) {
     s_window = window_create();
     window_set_background_color(s_window, data_get_background_color());
@@ -235,6 +236,11 @@ void main_window_push() {
   struct tm *time_now = localtime(&temp); 
   update_digit_values(time_now);
   show_digit_values();
+
+  // Stop 'all change' on first minute
+  for(int i = 0; i < NUM_CHARS - 1; i++) {
+    s_digit_states_prev[i] = s_digit_states_now[i];
+  }
 
   // Init seconds bar
   GRect bounds = layer_get_bounds(window_get_root_layer(s_window));
