@@ -2,9 +2,11 @@
 
 static Window *s_window;
 static TextLayer *s_digits[NUM_CHARS];
+static TextLayer *s_date_layer;
 static Layer *s_seconds_bar;
 
 static char s_time_buffer[NUM_CHARS + 1];       // + NULL char
+static char s_date_buffer[DATE_BUFFER_SIZE];
 static int s_digit_states_now[NUM_CHARS - 1];   // No colon in this array
 static int s_digit_states_prev[NUM_CHARS - 1];
 
@@ -17,6 +19,8 @@ static void update_digit_values(struct tm *tick_time) {
   s_digit_states_now[2] = s_time_buffer[3] - '0';
   s_digit_states_now[1] = s_time_buffer[1] - '0';
   s_digit_states_now[0] = s_time_buffer[0] - '0';
+
+  strftime(s_date_buffer, sizeof(s_date_buffer), "%a %d", tick_time);
 }
 
 static void show_digit_values() {
@@ -29,6 +33,8 @@ static void show_digit_values() {
       text_layer_set_text(s_digits[i], ":");
     }
   }
+
+  text_layer_set_text(s_date_layer, s_date_buffer);
 }
 
 static void predict_next_change(struct tm *tick_time) {
@@ -65,6 +71,10 @@ static void animation_stopped_handler(Animation *animation, bool finished, void 
 }
 
 static void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay) {
+  if(!data_get_boolean_setting(DataKeyAnimations)) {
+    return;
+  }
+
   PropertyAnimation *prop_anim = property_animation_create_layer_frame(layer, &start, &finish);
   Animation *anim = property_animation_get_animation(prop_anim);
   animation_set_duration(anim, duration);
@@ -203,6 +213,15 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, text_layer_get_layer(s_digits[i]));
   }
 
+  s_date_layer = text_layer_create(GRect(DATE_X_OFFSET, SECONDS_Y_OFFSET, bounds.size.w, DATE_HEIGHT));
+  text_layer_set_text_color(s_date_layer, data_get_foreground_color());
+  text_layer_set_background_color(s_date_layer, GColorClear);
+  text_layer_set_text_alignment(s_date_layer, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft));
+  text_layer_set_font(s_date_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IMAGINE_24)));
+  if(data_get_boolean_setting(DataKeyDate)) {
+    layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
+  }
+
   s_seconds_bar = layer_create(GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT));
   layer_set_update_proc(s_seconds_bar, seconds_update_proc);
   layer_add_child(window_layer, s_seconds_bar);
@@ -212,6 +231,7 @@ static void window_unload(Window *window) {
   for(int i = 0; i < NUM_CHARS; i++) {
     text_layer_destroy(s_digits[i]);
   }
+  text_layer_destroy(s_date_layer);
   layer_destroy(s_seconds_bar);
 
   window_destroy(s_window);

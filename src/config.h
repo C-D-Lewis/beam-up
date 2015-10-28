@@ -8,6 +8,9 @@
 #define Y_OFFSET             53
 #define SECONDS_Y_OFFSET     105
 #define SECONDS_HEIGHT       5
+#define DATE_BUFFER_SIZE     32
+#define DATE_HEIGHT          30
+#define DATE_X_OFFSET        PBL_IF_ROUND_ELSE(0, 45)
 #define BEAM_SIZE            GSize(30, 101)
 #define DIGIT_SIZE           GSize(50, 60)
 #define HOURS_TENS_X_OFFSET  PBL_IF_ROUND_ELSE(5, -13)
