@@ -26,6 +26,9 @@ void data_init() {
     s_bool_settings[DataKeyHourlyVibration] = false;
     s_foreground = GColorWhite;
     s_background = GColorBlack;
+
+    // Reinit
+    data_deinit();
   }
 }
 
