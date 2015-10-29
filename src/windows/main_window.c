@@ -4,7 +4,7 @@ static Window *s_window;
 static TextLayer *s_digits[NUM_CHARS];
 static TextLayer *s_date_layer;
 static Layer *s_beams[NUM_CHARS - 1];
-static Layer *s_seconds_bar;
+static Layer *s_seconds_bar, *s_inv_layer;
 
 static char s_time_buffer[NUM_CHARS + 1];       // + NULL char
 static char s_date_buffer[DATE_BUFFER_SIZE];
@@ -116,25 +116,25 @@ static void animate_beams(struct tm *tick_time) {
       if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[0]);
         animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        animate_layer(s_beams[0], layer_get_frame(s_beams[0]), GRect(HOURS_TENS_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
+        animate_layer(s_beams[0], layer_get_frame(s_beams[0]), GRect(HOURS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
         s_digit_states_prev[0] = s_digit_states_now[0];
       }
       if((s_digit_states_now[1] != s_digit_states_prev[1]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[1]);
         animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        animate_layer(s_beams[1], layer_get_frame(s_beams[1]), GRect(HOURS_UNITS_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
+        animate_layer(s_beams[1], layer_get_frame(s_beams[1]), GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
         s_digit_states_prev[1] = s_digit_states_now[1];   
       }
       if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[3]);
         animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        animate_layer(s_beams[2], layer_get_frame(s_beams[2]), GRect(MINS_TENS_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
+        animate_layer(s_beams[2], layer_get_frame(s_beams[2]), GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
         s_digit_states_prev[2] = s_digit_states_now[2];   
       }
       if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[4]);
         animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
+        animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
         s_digit_states_prev[3] = s_digit_states_now[3];   
       }
        
@@ -171,26 +171,26 @@ static void animate_beams(struct tm *tick_time) {
       Layer *digit_layer;
       if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[0]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 400, 0);
-        animate_layer(s_beams[0], layer_get_frame(s_beams[0]), GRect(HOURS_TENS_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
+        animate_layer(s_beams[0], layer_get_frame(s_beams[0]), GRect(HOURS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
        
       if((s_digit_states_now[1] != s_digit_states_prev[1]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[1]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 400, 0);
-        animate_layer(s_beams[1], layer_get_frame(s_beams[1]), GRect(HOURS_UNITS_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
+        animate_layer(s_beams[1], layer_get_frame(s_beams[1]), GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
        
       if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[3]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 400, 0);
-        animate_layer(s_beams[2], layer_get_frame(s_beams[2]), GRect(MINS_TENS_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
+        animate_layer(s_beams[2], layer_get_frame(s_beams[2]), GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
        
       if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[4]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 400, 0);
-        animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
+        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
+        animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
     }
       break;    
@@ -202,6 +202,17 @@ static void animate_beams(struct tm *tick_time) {
 static void seconds_update_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_fill_color(ctx, data_get_foreground_color());
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+}
+
+static void inv_update_proc(Layer *layer, GContext *ctx) {
+  GBitmap *fb = graphics_capture_frame_buffer(ctx);
+
+  for(int i = 0; i < NUM_CHARS - 1; i++) {
+    universal_fb_swap_colors(fb, layer_get_frame(s_beams[i]), 
+      data_get_foreground_color(), data_get_background_color());
+  }
+
+  graphics_release_frame_buffer(ctx, fb);
 }
 
 static void window_load(Window *window) {
@@ -222,10 +233,14 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, text_layer_get_layer(s_digits[i]));
   }
 
-  s_beams[0] = layer_create(GRect(HOURS_TENS_X_OFFSET, 0, BEAM_SIZE.w, 0));
-  s_beams[1] = layer_create(GRect(HOURS_UNITS_X_OFFSET, 0, BEAM_SIZE.w, 0));
-  s_beams[2] = layer_create(GRect(MINS_TENS_X_OFFSET, 0, BEAM_SIZE.w, 0));
-  s_beams[3] = layer_create(GRect(MINS_UNITS_X_OFFSET, 0, BEAM_SIZE.w, 0));
+  s_beams[0] = layer_create(GRect(HOURS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
+  s_beams[1] = layer_create(GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
+  s_beams[2] = layer_create(GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
+  s_beams[3] = layer_create(GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
+
+  s_inv_layer = layer_create(GRect(bounds.origin.x, bounds.origin.y, bounds.size.w, BEAM_SIZE.h));
+  layer_set_update_proc(s_inv_layer, inv_update_proc);
+  layer_add_child(window_layer, s_inv_layer);
 
   s_date_layer = text_layer_create(GRect(DATE_X_OFFSET, SECONDS_Y_OFFSET, bounds.size.w, DATE_HEIGHT));
   text_layer_set_text_color(s_date_layer, data_get_foreground_color());
