@@ -48,17 +48,17 @@ static void predict_next_change(struct tm *tick_time) {
   || ((s_digit_states_now[0] == 2) && (s_digit_states_now[1] == 3) && (s_digit_states_now[2] == 5) && (s_digit_states_now[3] == 9))) {   //23:59 --> 00:00
     s_digit_states_now[0]++;
   }
- 
+
   // Hour units will change
   if((s_digit_states_now[2] == 5) && (s_digit_states_now[3] == 9)) {
     s_digit_states_now[1]++;
   }
- 
+
   // Minute tens will change
   if(s_digit_states_now[3] == 9) {
     s_digit_states_now[2]++;
   }
-     
+
   // Minute unit always changes
   s_digit_states_now[3]++;
 }
@@ -71,11 +71,7 @@ static void animation_stopped_handler(Animation *animation, bool finished, void 
 #endif
 }
 
-static void animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay) {
-  if(!data_get_boolean_setting(DataKeyAnimations)) {
-    return;
-  }
-
+static Animation* animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay) {
   PropertyAnimation *prop_anim = property_animation_create_layer_frame(layer, &start, &finish);
   Animation *anim = property_animation_get_animation(prop_anim);
   animation_set_duration(anim, duration);
@@ -83,7 +79,12 @@ static void animate_layer(Layer *layer, GRect start, GRect finish, int duration,
   animation_set_handlers(anim, (AnimationHandlers) {
     .stopped = animation_stopped_handler
   }, NULL);
-  animation_schedule(anim);
+  return anim;
+}
+
+static void free_hanldler(void *context) {
+  Animation **anims = (Animation**)context;
+  free(anims);
 }
 
 static void animate_beams(struct tm *tick_time) {
@@ -112,55 +113,66 @@ static void animate_beams(struct tm *tick_time) {
       show_digit_values();
 
       // Animate stuff back into place
+      Animation **anims = malloc(9 * sizeof(Animation*));
       Layer *digit_layer;
       if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[0]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        animate_layer(s_beams[0], layer_get_frame(s_beams[0]), GRect(HOURS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
+        anims[0] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
+        anims[1] = animate_layer(s_beams[0], layer_get_frame(s_beams[0]), GRect(HOURS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
         s_digit_states_prev[0] = s_digit_states_now[0];
       }
       if((s_digit_states_now[1] != s_digit_states_prev[1]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[1]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        animate_layer(s_beams[1], layer_get_frame(s_beams[1]), GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
-        s_digit_states_prev[1] = s_digit_states_now[1];   
+        anims[2] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
+        anims[3] = animate_layer(s_beams[1], layer_get_frame(s_beams[1]), GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
+        s_digit_states_prev[1] = s_digit_states_now[1];
       }
       if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[3]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        animate_layer(s_beams[2], layer_get_frame(s_beams[2]), GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
-        s_digit_states_prev[2] = s_digit_states_now[2];   
+        anims[4] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
+        anims[5] = animate_layer(s_beams[2], layer_get_frame(s_beams[2]), GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
+        s_digit_states_prev[2] = s_digit_states_now[2];
       }
       if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[4]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
-        animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
-        s_digit_states_prev[3] = s_digit_states_now[3];   
+        anims[6] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
+        anims[7] = animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0), 400, 500);
+        s_digit_states_prev[3] = s_digit_states_now[3];
       }
-       
+
       // Bottom surface down
-      animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT), 500, 500);
+      anims[8] = animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT), 500, 500);
+
+#if defined(PBL_SDK_3)
+      Animation *spawn = animation_spawn_create_from_array(anims, 9);
+      animation_schedule(spawn);
+#else
+      for(int i = 0; i < 9; i++) {
+        animation_schedule(anims[9]);
+      }
+#endif
+      app_timer_register(1000, free_hanldler, anims);
     }
       break;
 
     // 15 seconds bar
     case 15:
-      animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0);
+      animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0));
       break;
 
     // 30 seconds bar
     case 30:
-      animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0);
+      animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0));
       break;
 
     // 45 seconds bar
     case 45:
-      animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0);
+      animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
       break;
 
     // Complete bar
     case 58:
-      animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 1000);
+      animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 1000));
       break;
 
     // Beams down
@@ -168,32 +180,43 @@ static void animate_beams(struct tm *tick_time) {
       // Predict next changes
       predict_next_change(tick_time);
 
+      Animation **anims = malloc(8 * sizeof(Animation*));
       Layer *digit_layer;
       if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[0]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
-        animate_layer(s_beams[0], layer_get_frame(s_beams[0]), GRect(HOURS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
+        anims[0] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
+        anims[1] = animate_layer(s_beams[0], layer_get_frame(s_beams[0]), GRect(HOURS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
-       
+
       if((s_digit_states_now[1] != s_digit_states_prev[1]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[1]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
-        animate_layer(s_beams[1], layer_get_frame(s_beams[1]), GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
+        anims[2] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
+        anims[3] = animate_layer(s_beams[1], layer_get_frame(s_beams[1]), GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
-       
+
       if((s_digit_states_now[2] != s_digit_states_prev[2]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[3]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
-        animate_layer(s_beams[2], layer_get_frame(s_beams[2]), GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
+        anims[4] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
+        anims[5] = animate_layer(s_beams[2], layer_get_frame(s_beams[2]), GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
-       
+
       if((s_digit_states_now[3] != s_digit_states_prev[3]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[4]);
-        animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
-        animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
+        anims[6] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(MINS_UNITS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
+        anims[7] = animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
+
+#if defined(PBL_SDK_3)
+      Animation *spawn = animation_spawn_create_from_array(anims, 8);
+      animation_schedule(spawn);
+#else
+      for(int i = 0; i < 8; i++) {
+        animation_schedule(anims[8]);
+      }
+#endif
+      app_timer_register(1000, free_hanldler, anims);
     }
-      break;    
+      break;
   }
 }
 
@@ -208,7 +231,7 @@ static void inv_update_proc(Layer *layer, GContext *ctx) {
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
 
   for(int i = 0; i < NUM_CHARS - 1; i++) {
-    universal_fb_swap_colors(fb, layer_get_frame(s_beams[i]), 
+    universal_fb_swap_colors(fb, layer_get_frame(s_beams[i]),
       data_get_foreground_color(), data_get_background_color());
   }
 
@@ -285,8 +308,8 @@ void main_window_push() {
   window_stack_push(s_window, true);
 
   // Make sure the face is not blank
-  time_t temp = time(NULL);  
-  struct tm *time_now = localtime(&temp); 
+  time_t temp = time(NULL);
+  struct tm *time_now = localtime(&temp);
   update_digit_values(time_now);
   show_digit_values();
 
@@ -299,13 +322,13 @@ void main_window_push() {
   GRect bounds = layer_get_bounds(window_get_root_layer(s_window));
   int seconds = time_now->tm_sec;
   if(seconds >= 15 && seconds < 30) {
-    animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0);
+    animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0));
   } else if(seconds >= 30 && seconds < 45) {
-    animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0);
+    animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0));
   } else if(seconds >= 45 && seconds < 58) {
-    animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0);
+    animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
   } else if(seconds >= 58) {
-    animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0);
+    animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0));
   }
 }
 

@@ -47,6 +47,7 @@ void data_deinit() {
 }
 
 bool data_get_boolean_setting(int data_key) {
+  if(data_key == DataKeyAnimations) return true;  //HACK
   return (data_key < DataNumKeys && persist_exists(data_key)) ? s_bool_settings[data_key] : false;
 }
 
