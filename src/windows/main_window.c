@@ -82,11 +82,6 @@ static Animation* animate_layer(Layer *layer, GRect start, GRect finish, int dur
   return anim;
 }
 
-static void free_hanldler(void *context) {
-  Animation **anims = (Animation**)context;
-  free(anims);
-}
-
 static void animate_beams(struct tm *tick_time) {
   GRect bounds = layer_get_bounds(window_get_root_layer(s_window));
 
@@ -112,9 +107,10 @@ static void animate_beams(struct tm *tick_time) {
       update_digit_values(tick_time);
       show_digit_values();
 
-      // Animate stuff back into place
-      Animation **anims = malloc(9 * sizeof(Animation*));
+      static Animation *anims[9];
       Layer *digit_layer;
+
+      // Animate stuff back into place
       if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[0]);
         anims[0] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 100);
@@ -144,14 +140,13 @@ static void animate_beams(struct tm *tick_time) {
       anims[8] = animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT), 500, 500);
 
 #if defined(PBL_SDK_3)
-      Animation *spawn = animation_spawn_create_from_array(anims, 9);
+      Animation *spawn = animation_spawn_create_from_array((Animation**)&anims, 9);
       animation_schedule(spawn);
 #else
       for(int i = 0; i < 9; i++) {
-        animation_schedule(anims[9]);
+        animation_schedule(anims[i]);
       }
 #endif
-      app_timer_register(1000, free_hanldler, anims);
     }
       break;
 
@@ -180,8 +175,9 @@ static void animate_beams(struct tm *tick_time) {
       // Predict next changes
       predict_next_change(tick_time);
 
-      Animation **anims = malloc(8 * sizeof(Animation*));
+      static Animation *anims[8];
       Layer *digit_layer;
+
       if((s_digit_states_now[0] != s_digit_states_prev[0]) || DEBUG) {
         digit_layer = text_layer_get_layer(s_digits[0]);
         anims[0] = animate_layer(digit_layer, layer_get_frame(digit_layer), GRect(HOURS_TENS_X_OFFSET, -Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h), 200, 700);
@@ -207,14 +203,13 @@ static void animate_beams(struct tm *tick_time) {
       }
 
 #if defined(PBL_SDK_3)
-      Animation *spawn = animation_spawn_create_from_array(anims, 8);
+      Animation *spawn = animation_spawn_create_from_array((Animation**)&anims, 8);
       animation_schedule(spawn);
 #else
       for(int i = 0; i < 8; i++) {
-        animation_schedule(anims[8]);
+        animation_schedule(anims[i]);
       }
 #endif
-      app_timer_register(1000, free_hanldler, anims);
     }
       break;
   }
