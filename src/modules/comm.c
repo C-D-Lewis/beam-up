@@ -22,6 +22,18 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     data_set_boolean_setting(DataKeyHourlyVibration, strcmp(hourly_tuple->value->cstring, "true") == 0);
   }
 
+#if defined(PBL_SDK_3)
+  Tuple *fg_tuple = dict_find(iter, DataKeyForegroundColor);
+  if(fg_tuple) {
+    data_set_foreground_color((GColor){ .argb = fg_tuple->value->int32 });
+  }
+
+  Tuple *bg_tuple = dict_find(iter, DataKeyBackgroundColor);
+  if(bg_tuple) {
+    data_set_background_color((GColor){ .argb = bg_tuple->value->int32 });
+  }
+#endif
+
   // Exit to reload settings
   window_stack_pop_all(true);
 }
