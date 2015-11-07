@@ -74,10 +74,13 @@ static void animation_stopped_handler(Animation *animation, bool finished, void 
 }
 
 static Animation* animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay) {
-  PropertyAnimation *prop_anim = property_animation_create_layer_frame(layer, &start, &finish);
+  bool do_animations = data_get_boolean_setting(DataKeyAnimations);
+
+  PropertyAnimation *prop_anim = property_animation_create_layer_frame(layer,
+    &start, do_animations ? &finish : &start);
   Animation *anim = property_animation_get_animation(prop_anim);
-  animation_set_duration(anim, duration);
-  animation_set_delay(anim, delay);
+  animation_set_duration(anim, do_animations ? duration : 0);
+  animation_set_delay(anim, do_animations ? delay : 0);
   animation_set_handlers(anim, (AnimationHandlers) {
     .stopped = animation_stopped_handler
   }, NULL);

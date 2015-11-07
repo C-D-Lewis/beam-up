@@ -20,6 +20,8 @@
 
 #define BT_Y_OFFSET          140
 
+#define BATTERY_HEIGHT       3
+
 #define DIGIT_SIZE           GSize(50, 60)
 
 #define HOURS_TENS_X_OFFSET  PBL_IF_ROUND_ELSE(5, -13)
