@@ -21,10 +21,10 @@
     "DataKeyDate": 0,
     "DataKeyAnimations": 1,
     "DataKeyBTIndicator": 2,
-    "DataKeyBatteryMeter": 3,
-    "DataKeyHourlyVibration": 4,
-    "DataKeyForegroundColor": 6,
-    "DataKeyBackgroundColor": 7
+    "DataKeyHourlyVibration": 3,
+    "DataKeyNumBoolKeys": 4,
+    "DataKeyForegroundColor": 5,
+    "DataKeyBackgroundColor": 6
   },
   "resources": {
     "media": [

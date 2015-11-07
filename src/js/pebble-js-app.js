@@ -24,7 +24,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
     'DataKeyDate': '' + json.date,
     'DataKeyAnimations': '' + json.animations,
     'DataKeyBTIndicator': '' + json.bluetooth,
-    'DataKeyBatteryMeter': '' + json.battery,
     'DataKeyHourlyVibration': '' + json.hourly
   };
 

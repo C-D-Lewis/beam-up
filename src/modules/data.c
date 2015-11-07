@@ -2,12 +2,23 @@
 
 // Cache all data
 static GColor s_foreground, s_background;
-static bool s_bool_settings[DataNumKeys];
+static bool s_bool_settings[DataNumBoolKeys];
 
 void data_init() {
+  // Nuke previus version settings
+  if(!persist_exists(V_3_0)) {
+    for(int i = 0; i < DataNumBoolKeys; i++) {
+      persist_delete(i);
+    }
+    persist_delete(DataKeyForegroundColor);
+    persist_delete(DataKeyBackgroundColor);
+
+    persist_write_bool(V_3_0, true);
+  }
+
   if(persist_exists(DataKeyDate)) {
     // Read settings
-    for(int i = 0; i < DataNumKeys; i++) {
+    for(int i = 0; i < DataNumBoolKeys; i++) {
       s_bool_settings[i] = persist_read_bool(i);
     }
 #if defined(PBL_SDK_3)
@@ -22,7 +33,6 @@ void data_init() {
     s_bool_settings[DataKeyDate] = false;
     s_bool_settings[DataKeyAnimations] = true;
     s_bool_settings[DataKeyBTIndicator] = true;
-    s_bool_settings[DataKeyBatteryMeter] = false;
     s_bool_settings[DataKeyHourlyVibration] = false;
     s_foreground = GColorWhite;
     s_background = GColorBlack;
@@ -34,7 +44,7 @@ void data_init() {
 
 void data_deinit() {
   // Store current values
-  for(int i = 0; i < DataNumKeys; i++) {
+  for(int i = 0; i < DataNumBoolKeys; i++) {
     persist_write_bool(i, s_bool_settings[i]);
   }
 #if defined(PBL_SDK_3)
@@ -47,11 +57,11 @@ void data_deinit() {
 }
 
 bool data_get_boolean_setting(int data_key) {
-  return (data_key < DataNumKeys && persist_exists(data_key)) ? s_bool_settings[data_key] : false;
+  return (data_key < DataNumBoolKeys && persist_exists(data_key)) ? s_bool_settings[data_key] : false;
 }
 
 void data_set_boolean_setting(int data_key, bool value) {
-  if(data_key < DataNumKeys) {
+  if(data_key < DataNumBoolKeys) {
     s_bool_settings[data_key] = value;
   }
 }

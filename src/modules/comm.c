@@ -17,11 +17,6 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     data_set_boolean_setting(DataKeyBTIndicator, strcmp(bt_tuple->value->cstring, "true") == 0);
   }
 
-  Tuple *battery_tuple = dict_find(iter, DataKeyBatteryMeter);
-  if(battery_tuple) {
-    data_set_boolean_setting(DataKeyBatteryMeter, strcmp(battery_tuple->value->cstring, "true") == 0);
-  }
-
   Tuple *hourly_tuple = dict_find(iter, DataKeyHourlyVibration);
   if(hourly_tuple) {
     data_set_boolean_setting(DataKeyHourlyVibration, strcmp(hourly_tuple->value->cstring, "true") == 0);
