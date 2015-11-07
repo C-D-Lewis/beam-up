@@ -144,7 +144,10 @@ static void animate_beams(struct tm *tick_time) {
       animation_schedule(spawn);
 #else
       for(int i = 0; i < 9; i++) {
-        animation_schedule(anims[i]);
+        // Not all digits will be animating!
+        if(anims[i]) {
+          animation_schedule(anims[i]);
+        }
       }
 #endif
     }
@@ -207,7 +210,10 @@ static void animate_beams(struct tm *tick_time) {
       animation_schedule(spawn);
 #else
       for(int i = 0; i < 8; i++) {
-        animation_schedule(anims[i]);
+        // Not all digits will be animating!
+        if(anims[i]) {
+          animation_schedule(anims[i]);
+        }
       }
 #endif
     }
