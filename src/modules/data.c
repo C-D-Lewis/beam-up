@@ -10,12 +10,12 @@ void data_init() {
     for(int i = 0; i < DataNumKeys; i++) {
       s_bool_settings[i] = persist_read_bool(i);
     }
-#if defined(PBL_COLOR)
+#if defined(PBL_SDK_3)
     s_foreground = (GColor){ .argb = persist_read_int(DataKeyForegroundColor) };
     s_background = (GColor){ .argb = persist_read_int(DataKeyBackgroundColor) };
-# elif defined(PBL_BW)
-    s_foreground = persist_read_int(DataKeyForegroundColor) == 1 ? GColorWhite : GColorBlack;
-    s_background = persist_read_int(DataKeyBackgroundColor) == 1 ? GColorWhite : GColorBlack;
+#elif defined(PBL_SDK_2)
+    s_foreground = (persist_read_int(DataKeyForegroundColor) == 1) ? GColorWhite : GColorBlack;
+    s_background = (persist_read_int(DataKeyBackgroundColor) == 1) ? GColorWhite : GColorBlack;
 #endif
   } else {
     // Load defaults
@@ -37,17 +37,19 @@ void data_deinit() {
   for(int i = 0; i < DataNumKeys; i++) {
     persist_write_bool(i, s_bool_settings[i]);
   }
-#if defined(PBL_COLOR)
+#if defined(PBL_SDK_3)
   persist_write_int(DataKeyForegroundColor, s_foreground.argb);
   persist_write_int(DataKeyBackgroundColor, s_background.argb);
-# elif defined(PBL_BW)
-  persist_write_int(DataKeyForegroundColor, s_foreground == GColorWhite ? 1 : 0);
-  persist_write_int(DataKeyBackgroundColor, s_background == GColorWhite ? 1 : 0);
+#elif defined(PBL_SDK_2)
+  persist_write_int(DataKeyForegroundColor, (s_foreground == GColorWhite) ? 1 : 0);
+  persist_write_int(DataKeyBackgroundColor, (s_background == GColorWhite) ? 1 : 0);
 #endif
 }
 
 bool data_get_boolean_setting(int data_key) {
-  if(data_key == DataKeyAnimations) return true;  //HACK
+  if(data_key == DataKeyAnimations) return true;   //HACK
+  if(data_key == DataKeyDate) return true;         //HACK
+  if(data_key == DataKeyBTIndicator) return true;  //HACK
   return (data_key < DataNumKeys && persist_exists(data_key)) ? s_bool_settings[data_key] : false;
 }
 

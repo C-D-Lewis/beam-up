@@ -3,6 +3,8 @@
 static Window *s_window;
 static TextLayer *s_digits[NUM_CHARS];
 static TextLayer *s_date_layer;
+static Layer *s_bt_layer;
+static GBitmap *s_bt_bitmap;
 static Layer *s_beams[NUM_CHARS - 1];
 static Layer *s_seconds_bar, *s_inv_layer;
 
@@ -239,6 +241,19 @@ static void inv_update_proc(Layer *layer, GContext *ctx) {
   graphics_release_frame_buffer(ctx, fb);
 }
 
+static void bt_update_proc(Layer *layer, GContext *ctx) {
+  // Draw it white
+#if defined(PBL_SDK_3)
+  graphics_context_set_compositing_mode(ctx, GCompOpSet);
+#endif
+  graphics_draw_bitmap_in_rect(ctx, s_bt_bitmap, gbitmap_get_bounds(s_bt_bitmap));
+
+  // Swap to FG color
+  GBitmap *fb = graphics_capture_frame_buffer(ctx);
+  universal_fb_swap_colors(fb, layer_get_frame(layer), GColorWhite, data_get_foreground_color());
+  graphics_release_frame_buffer(ctx, fb);
+}
+
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -278,6 +293,19 @@ static void window_load(Window *window) {
   s_seconds_bar = layer_create(GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT));
   layer_set_update_proc(s_seconds_bar, seconds_update_proc);
   layer_add_child(window_layer, s_seconds_bar);
+
+  s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT_WHITE);
+
+  GRect bitmap_bounds = gbitmap_get_bounds(s_bt_bitmap);
+  s_bt_layer = layer_create(GRect(
+    (bounds.size.w - bitmap_bounds.size.w) / 2,
+    BT_Y_OFFSET, bitmap_bounds.size.w, bitmap_bounds.size.h));
+  layer_set_update_proc(s_bt_layer, bt_update_proc);
+  layer_add_child(window_layer, s_bt_layer);
+
+  if(data_get_boolean_setting(DataKeyBTIndicator)) {
+    layer_set_hidden(s_bt_layer, !bluetooth_connection_service_peek());
+  }
 }
 
 static void window_unload(Window *window) {
@@ -290,6 +318,9 @@ static void window_unload(Window *window) {
     layer_destroy(s_beams[i]);
   }
   layer_destroy(s_seconds_bar);
+
+  layer_destroy(s_bt_layer);
+  gbitmap_destroy(s_bt_bitmap);
 
   window_destroy(s_window);
   s_window = NULL;

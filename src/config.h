@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 
-#define DEBUG false
+#define DEBUG true
 
 #define NUM_CHARS            5
 
@@ -17,6 +17,8 @@
 
 #define BEAM_SIZE            GSize(30, 101)
 #define BEAM_X_OFFSET        14
+
+#define BT_Y_OFFSET          140
 
 #define DIGIT_SIZE           GSize(50, 60)
 
