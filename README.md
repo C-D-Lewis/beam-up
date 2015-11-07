@@ -4,9 +4,7 @@ Minimal sharp-edged animated watchface for [Pebble](https://getpebble.com) smart
 
 ![screenshot1](screenshots/round.png)
 
-![screenshot2](screenshots/inverted.png)
-
-![screenshot3](screenshots/green.png)
+![screenshot3](screenshots/rect.png)
 
 
 ## Features
