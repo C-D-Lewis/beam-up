@@ -225,6 +225,15 @@ static void animate_beams(struct tm *tick_time) {
 
 /*********************************** Window ***********************************/
 
+static void bt_handler(bool connected) {
+  if(connected) {
+    layer_set_hidden(s_bt_layer, true);
+  } else {
+    vibes_double_pulse();
+    layer_set_hidden(s_bt_layer, false);
+  }
+}
+
 static void seconds_update_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_fill_color(ctx, data_get_foreground_color());
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
@@ -304,7 +313,7 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, s_bt_layer);
 
   if(data_get_boolean_setting(DataKeyBTIndicator)) {
-    layer_set_hidden(s_bt_layer, !bluetooth_connection_service_peek());
+    layer_set_hidden(s_bt_layer, bluetooth_connection_service_peek());
   }
 }
 
@@ -344,6 +353,10 @@ void main_window_push() {
   struct tm *time_now = localtime(&temp);
   update_digit_values(time_now);
   show_digit_values();
+
+  if(data_get_boolean_setting(DataKeyBTIndicator)) {
+    bluetooth_connection_service_subscribe(bt_handler);
+  }
 
   // Stop 'all change' on first minute
   for(int i = 0; i < NUM_CHARS - 1; i++) {

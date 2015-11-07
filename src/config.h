@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 
-#define DEBUG true
+#define DEBUG                false
 
 #define NUM_CHARS            5
 
