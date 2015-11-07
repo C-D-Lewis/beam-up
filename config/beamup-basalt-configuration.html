@@ -6,22 +6,23 @@
   <body>
     <h2>Beam Up Configuration</h2>
 
-    <hr />
+    <hr/>
 
-    <h3>Color Theme (Pebble Time only)</h3>
+    <h3>Colors (Pebble Time/Steel/Round only)</h3>
 
-    <select id='theme_select'>
-      <option value='classic'>Classic</option>
-      <option value='inverted'>Inverted Classic</option>
-      <option value='green'>Green</option>
-      <option value='blue'>Blue</option>
-      <option value='red'>Red</option>
-      <option value='yellow'>Yellow</option>
-      <option value='midnight'>Midnight</option>
-    </select>
+    <a href="http://www.w3schools.com/tags/ref_colorpicker.asp">Hex color picker</a> (get code then return here)
+    <br/><br/>
 
-    <hr />
- 
+    <table>
+      <tr>
+        <td>Foreground color (Hex, no '#')</td><td><input type="text" size="8" id="text_foreground_color"></td>
+      </tr>
+      <tr>
+        <td>Background color (Hex, no '#')</td><td><input type="text" size="8" id="text_background_color"></td>
+      </tr>
+    </table>
+    <hr/>
+
     <h3>Features</h3>
 
     </p>
@@ -36,24 +37,20 @@
         <td>Show disconnected indicator</td><td><input id='check_bluetooth' type='checkbox'/></td>
       </tr>
       <tr>
-        <td>Shake to show battery level</td><td><input id='check_battery' type='checkbox'/>
-      </tr>
-      <tr>
         <td>Vibrate on the hour</td><td><input id='check_hourly' type='checkbox'/>
       </tr>
     </table>
 
     <p>
-      <b>After saving, restart watchapp!</b>
-    <button id='save_button'>Save</button>
+      <button style="display: block; width: 100%;" id='save_button'>Save</button>
     </p>
 
-    <hr />
+    <hr/>
     <h3>Version</h3>
     <p id='current_version'>Current version:</p>
     <p id='p_version'>Getting latest version...</p>
 
-    <hr />
+    <hr/>
 
     <p>
     <h3>Latest News</h3>
@@ -82,9 +79,9 @@
           persistWrite('date', 'false');
           persistWrite('animations', 'true');
           persistWrite('bluetooth', 'true');
-          persistWrite('battery', 'false');
           persistWrite('hourly', 'false');
-          persistWrite('theme', 'classic');
+          persistWrite('foreground', 'FFFFFF');
+          persistWrite('background', '000000');
         }
       }
 
@@ -92,16 +89,9 @@
         document.getElementById('check_date').checked = persistRead('date', 'false') === 'true';
         document.getElementById('check_animations').checked = persistRead('animations', 'true') === 'true';
         document.getElementById('check_bluetooth').checked = persistRead('bluetooth', 'true') === 'true';
-        document.getElementById('check_battery').checked = persistRead('battery', 'false') === 'true';
         document.getElementById('check_hourly').checked = persistRead('hourly', 'false') === 'true';
-
-        var category = persistRead('theme', 'classic'); // Default
-        var themeSelect = document.getElementById('theme_select');
-        for(var i = 0; i < themeSelect.options.length; i += 1) {
-          if(themeSelect.options[i].value == category) {
-            themeSelect.selectedIndex = i;
-          }
-        }
+        document.getElementById('text_foreground_color').value = '' + persistRead('foreground', 'FFFFFF');
+        document.getElementById('text_background_color').value = '' + persistRead('background', '000000');
       }
 
       function xhrAsyncRequest(url, type, callback) {
@@ -116,7 +106,7 @@
       function getAppVersionAndNews() {
         //Get latest
         xhrAsyncRequest(
-          'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json', 
+          'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json',
           'GET',
           function(responseText) {
             var json = JSON.parse(responseText);
@@ -132,30 +122,30 @@
       }
 
       var submitButton = document.getElementById('save_button');
-      submitButton.addEventListener('click', 
+      submitButton.addEventListener('click',
         function() {
-          var themeSelect = document.getElementById('theme_select');
 
           var options = {
             'date': document.getElementById('check_date').checked ? 'true' : 'false',
             'animations': document.getElementById('check_animations').checked ? 'true' : 'false',
             'bluetooth': document.getElementById('check_bluetooth').checked ? 'true' : 'false',
-            'battery': document.getElementById('check_battery').checked ? 'true' : 'false',
             'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false',
-            'theme': '' + themeSelect.options[themeSelect.selectedIndex].value
+            'foreground': '' + document.getElementById('text_foreground_color').value,
+            'background': '' + document.getElementById('text_background_color').value
           };
 
           // Save
           persistWrite('date', options['date']);
           persistWrite('animations', options['animations']);
           persistWrite('bluetooth', options['bluetooth']);
-          persistWrite('battery', options['battery']);
           persistWrite('hourly', options['hourly']);
           persistWrite('theme', options['theme']);
+          persistWrite('foreground', options['foreground']);
+          persistWrite('background', options['background']);
 
           // Return
           document.location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
-        }, 
+        },
       false);
 
       firstTimeSetup();
