@@ -10,7 +10,7 @@
 
     <h3>Colors (Pebble Time/Steel/Round only)</h3>
 
-    <a href="http://www.w3schools.com/tags/ref_colorpicker.asp">Hex color picker</a> (get code then return here)
+    <a href="https://developer.getpebble.com/more/color-picker/">Hex color picker</a> (get code then return here)
     <br/><br/>
 
     <table>
@@ -105,10 +105,8 @@
 
       function getAppVersionAndNews() {
         //Get latest
-        xhrAsyncRequest(
-          'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json',
-          'GET',
-          function(responseText) {
+        var url = 'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json';
+        xhrAsyncRequest(url, 'GET', function(responseText) {
             var json = JSON.parse(responseText);
             document.getElementById('p_version').innerHTML = 'Latest version: ' + json.beamupbasalt;
             document.getElementById('news').innerHTML = '' + json.beamupbasaltnews;
@@ -122,16 +120,26 @@
       }
 
       var submitButton = document.getElementById('save_button');
-      submitButton.addEventListener('click',
-        function() {
+      submitButton.addEventListener('click', function() {
+          var foreground = '' + document.getElementById('text_foreground_color').value;
+          var background = '' + document.getElementById('text_background_color').value;
+
+          // Ignore #
+          if(foreground.indexOf('#') > -1) {
+            foreground = foreground.substring(foreground.indexOf('#') + 1);
+            console.log('cleaning ' + foreground);
+          }
+          if(background.indexOf('#') > -1) {
+            background = background.substring(background.indexOf('#') + 1);
+          }
 
           var options = {
             'date': document.getElementById('check_date').checked ? 'true' : 'false',
             'animations': document.getElementById('check_animations').checked ? 'true' : 'false',
             'bluetooth': document.getElementById('check_bluetooth').checked ? 'true' : 'false',
             'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false',
-            'foreground': '' + document.getElementById('text_foreground_color').value,
-            'background': '' + document.getElementById('text_background_color').value
+            'foreground': foreground,
+            'background': background
           };
 
           // Save
