@@ -39,6 +39,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
     'DataKeyAnimations': '' + json.animations,
     'DataKeyBTIndicator': '' + json.bluetooth,
     'DataKeyHourlyVibration': '' + json.hourly,
+    'DataKeySleep': '' + json.sleep,
     'DataKeyForegroundColor': foreground,
     'DataKeyBackgroundColor': background
   };

@@ -67,6 +67,12 @@ static void predict_next_change(struct tm *tick_time) {
 
 /********************************* Animation **********************************/
 
+static void safe_animation_schedule(Animation *animation) {
+  if(animation) {
+    animation_schedule(animation);
+  }
+}
+
 static void animation_stopped_handler(Animation *animation, bool finished, void *context) {
 #if defined(PBL_SDK_2)
   property_animation_destroy((PropertyAnimation*)animation);
@@ -77,19 +83,25 @@ static Animation* animate_layer(Layer *layer, GRect start, GRect finish, int dur
   bool do_animations = data_get_boolean_setting(DataKeyAnimations);
 
   // Sleeping?
-  time_t now = time(NULL);
-  struct tm * tm_now = localtime(&now);
-  int hours = tm_now->tm_hour;
-  hours -= (hours > 12) ? 12 : 0;
-  if(hours > 0 && hours < 6) {
-    do_animations = false;
+  if(do_animations && data_get_boolean_setting(DataKeySleep)) {
+    time_t now = time(NULL);
+    struct tm * tm_now = localtime(&now);
+    int hours = tm_now->tm_hour;
+    hours -= (hours > 12) ? 12 : 0;
+    if(hours >= 0 && hours < 6) {
+      do_animations = false;
+    }
+  }
+
+  if(!do_animations) {
+    return NULL;
   }
 
   PropertyAnimation *prop_anim = property_animation_create_layer_frame(layer,
-    &start, do_animations ? &finish : &start);
+    &start, &finish);
   Animation *anim = property_animation_get_animation(prop_anim);
-  animation_set_duration(anim, do_animations ? duration : 0);
-  animation_set_delay(anim, do_animations ? delay : 0);
+  animation_set_duration(anim, duration);
+  animation_set_delay(anim, delay);
   animation_set_handlers(anim, (AnimationHandlers) {
     .stopped = animation_stopped_handler
   }, NULL);
@@ -155,12 +167,12 @@ static void animate_beams(struct tm *tick_time) {
 
 #if defined(PBL_SDK_3)
       Animation *spawn = animation_spawn_create_from_array((Animation**)&anims, 9);
-      animation_schedule(spawn);
+      safe_animation_schedule(spawn);
 #else
       for(int i = 0; i < 9; i++) {
         // Not all digits will be animating!
         if(anims[i]) {
-          animation_schedule(anims[i]);
+          safe_animation_schedule(anims[i]);
         }
       }
 #endif
@@ -182,22 +194,22 @@ static void animate_beams(struct tm *tick_time) {
 
     // 15 seconds bar
     case 15:
-      animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0));
+      safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0));
       break;
 
     // 30 seconds bar
     case 30:
-      animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0));
+      safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0));
       break;
 
     // 45 seconds bar
     case 45:
-      animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
+      safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
       break;
 
     // Complete bar
     case 58:
-      animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 1000));
+      safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 1000));
       break;
 
     // Beams down
@@ -234,12 +246,12 @@ static void animate_beams(struct tm *tick_time) {
 
 #if defined(PBL_SDK_3)
       Animation *spawn = animation_spawn_create_from_array((Animation**)&anims, 8);
-      animation_schedule(spawn);
+      safe_animation_schedule(spawn);
 #else
       for(int i = 0; i < 8; i++) {
         // Not all digits will be animating!
         if(anims[i]) {
-          animation_schedule(anims[i]);
+          safe_animation_schedule(anims[i]);
         }
       }
 #endif
@@ -392,13 +404,13 @@ void main_window_push() {
   GRect bounds = layer_get_bounds(window_get_root_layer(s_window));
   int seconds = time_now->tm_sec;
   if(seconds >= 15 && seconds < 30) {
-    animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0));
+    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0));
   } else if(seconds >= 30 && seconds < 45) {
-    animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0));
+    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0));
   } else if(seconds >= 45 && seconds < 58) {
-    animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
+    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
   } else if(seconds >= 58) {
-    animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0));
+    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0));
   }
 }
 
