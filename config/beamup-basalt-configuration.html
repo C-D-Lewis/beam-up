@@ -10,7 +10,7 @@
 
     <h3>Colors (Pebble Time/Steel/Round only)</h3>
 
-    <a href="https://developer.getpebble.com/more/color-picker/">Hex color picker</a> (get code then return here)
+    <a href="http://www.w3schools.com/tags/ref_colorpicker.asp">Hex color picker</a> (get code then return here)
     <br/><br/>
 
     <table>
@@ -38,6 +38,9 @@
       </tr>
       <tr>
         <td>Vibrate on the hour</td><td><input id='check_hourly' type='checkbox'/>
+      </tr>
+      <tr>
+        <td>Sleep (don't animate) at night (00:00 - 6:00)</td><td><input id='check_sleep' type='checkbox'/>
       </tr>
     </table>
 
@@ -80,6 +83,7 @@
           persistWrite('animations', 'true');
           persistWrite('bluetooth', 'true');
           persistWrite('hourly', 'false');
+          persistWrite('sleep', 'true');
           persistWrite('foreground', 'FFFFFF');
           persistWrite('background', '000000');
         }
@@ -90,6 +94,7 @@
         document.getElementById('check_animations').checked = persistRead('animations', 'true') === 'true';
         document.getElementById('check_bluetooth').checked = persistRead('bluetooth', 'true') === 'true';
         document.getElementById('check_hourly').checked = persistRead('hourly', 'false') === 'true';
+        document.getElementById('check_sleep').checked = persistRead('sleep', 'true') === 'true';
         document.getElementById('text_foreground_color').value = '' + persistRead('foreground', 'FFFFFF');
         document.getElementById('text_background_color').value = '' + persistRead('background', '000000');
       }
@@ -105,8 +110,10 @@
 
       function getAppVersionAndNews() {
         //Get latest
-        var url = 'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json';
-        xhrAsyncRequest(url, 'GET', function(responseText) {
+        xhrAsyncRequest(
+          'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json',
+          'GET',
+          function(responseText) {
             var json = JSON.parse(responseText);
             document.getElementById('p_version').innerHTML = 'Latest version: ' + json.beamupbasalt;
             document.getElementById('news').innerHTML = '' + json.beamupbasaltnews;
@@ -120,26 +127,17 @@
       }
 
       var submitButton = document.getElementById('save_button');
-      submitButton.addEventListener('click', function() {
-          var foreground = '' + document.getElementById('text_foreground_color').value;
-          var background = '' + document.getElementById('text_background_color').value;
-
-          // Ignore #
-          if(foreground.indexOf('#') > -1) {
-            foreground = foreground.substring(foreground.indexOf('#') + 1);
-            console.log('cleaning ' + foreground);
-          }
-          if(background.indexOf('#') > -1) {
-            background = background.substring(background.indexOf('#') + 1);
-          }
+      submitButton.addEventListener('click',
+        function() {
 
           var options = {
             'date': document.getElementById('check_date').checked ? 'true' : 'false',
             'animations': document.getElementById('check_animations').checked ? 'true' : 'false',
             'bluetooth': document.getElementById('check_bluetooth').checked ? 'true' : 'false',
             'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false',
-            'foreground': foreground,
-            'background': background
+            'sleep': document.getElementById('check_sleep').checked ? 'true' : 'false',
+            'foreground': '' + document.getElementById('text_foreground_color').value,
+            'background': '' + document.getElementById('text_background_color').value
           };
 
           // Save
@@ -147,8 +145,7 @@
           persistWrite('animations', options['animations']);
           persistWrite('bluetooth', options['bluetooth']);
           persistWrite('hourly', options['hourly']);
-          persistWrite('theme', options['theme']);
-          persistWrite('foreground', options['foreground']);
+          persistWrite('sleep', options['sleep']);
           persistWrite('background', options['background']);
 
           // Return
