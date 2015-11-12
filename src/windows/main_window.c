@@ -190,6 +190,8 @@ static void animate_beams(struct tm *tick_time) {
         layer_set_frame(s_beams[1], GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
         layer_set_frame(s_beams[2], GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
         layer_set_frame(s_beams[3], GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
+
+        layer_set_frame(s_seconds_bar, GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT));
       break;
 
     // 15 seconds bar
