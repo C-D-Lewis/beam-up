@@ -25,7 +25,19 @@
     "DataKeySleep": 4,
     "DataKeyNumBoolKeys": 5,
     "DataKeyForegroundColor": 50,
-    "DataKeyBackgroundColor": 51
+    "DataKeyBackgroundColor": 51,
+
+    "OWMWeatherAppMessageKeyRequest": 0,
+    "OWMWeatherAppMessageKeyReply": 1,
+    "OWMWeatherAppMessageKeyDescription": 2,
+    "OWMWeatherAppMessageKeyDescriptionShort": 3,
+    "OWMWeatherAppMessageKeyName": 4,
+    "OWMWeatherAppMessageKeyTempK": 5,
+    "OWMWeatherAppMessageKeyPressure": 6,
+    "OWMWeatherAppMessageKeyWindSpeed": 7,
+    "OWMWeatherAppMessageKeyWindDirection": 8,
+    "OWMWeatherAppMessageKeyBadKey": 91,
+    "OWMWeatherAppMessageKeyLocationUnavailable": 92
   },
   "resources": {
     "media": [
@@ -56,6 +68,11 @@
         "type": "png",
         "name": "BT_BLACK",
         "file": "images/bt-bar-black.png"
+      },
+      {
+        "type": "png",
+        "name": "WEATHER_UNKNOWN",
+        "file": "images/weather_unknown.png"
       }
     ]
   }

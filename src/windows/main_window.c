@@ -3,15 +3,24 @@
 static Window *s_window;
 static TextLayer *s_digits[NUM_CHARS];
 static TextLayer *s_date_layer;
-static Layer *s_bt_layer;
-static GBitmap *s_bt_bitmap;
+static GBitmap *s_bt_bitmap, *s_weather_bitmap;
+static BitmapLayer *s_weather_layer;
 static Layer *s_beams[NUM_CHARS - 1];
-static Layer *s_seconds_bar, *s_inv_layer;
+static Layer *s_seconds_bar, *s_inv_layer, *s_bt_layer;
 
 static char s_time_buffer[NUM_CHARS + 1];       // + NULL char
 static char s_date_buffer[DATE_BUFFER_SIZE];
 static int s_digit_states_now[NUM_CHARS - 1];   // No colon in this array
 static int s_digit_states_prev[NUM_CHARS - 1];
+
+/******************************** OWM Weather *********************************/
+
+static void owm_weather_callback(OWMWeatherInfo *info, OWMWeatherStatus status) {
+  // Hide if not available
+  layer_set_hidden(bitmap_layer_get_layer(s_weather_layer), status != OWMWeatherStatusAvailable);
+
+  // What kind of weather?
+}
 
 /******************************** Digit logic *********************************/
 
@@ -292,12 +301,12 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
+  // Digit TextLayers
   s_digits[0] = text_layer_create(GRect(HOURS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
   s_digits[1] = text_layer_create(GRect(HOURS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
   s_digits[2] = text_layer_create(GRect(COLON_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
   s_digits[3] = text_layer_create(GRect(MINS_TENS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
   s_digits[4] = text_layer_create(GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
-
   for(int i = 0; i < NUM_CHARS; i++) {
     text_layer_set_text_color(s_digits[i], data_get_foreground_color());
     text_layer_set_background_color(s_digits[i], GColorClear);
@@ -306,15 +315,18 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, text_layer_get_layer(s_digits[i]));
   }
 
+  // Beam bounds
   s_beams[0] = layer_create(GRect(HOURS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
   s_beams[1] = layer_create(GRect(HOURS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
   s_beams[2] = layer_create(GRect(MINS_TENS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
   s_beams[3] = layer_create(GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, 0));
 
+  // Invert effect via frame buffer
   s_inv_layer = layer_create(GRect(bounds.origin.x, bounds.origin.y, bounds.size.w, BEAM_SIZE.h));
   layer_set_update_proc(s_inv_layer, inv_update_proc);
   layer_add_child(window_layer, s_inv_layer);
 
+  // Short date
   s_date_layer = text_layer_create(GRect(DATE_X_OFFSET, SECONDS_Y_OFFSET, bounds.size.w - DATE_X_OFFSET, DATE_HEIGHT));
   text_layer_set_text_color(s_date_layer, data_get_foreground_color());
   text_layer_set_background_color(s_date_layer, GColorClear);
@@ -324,22 +336,34 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
   }
 
+  // Seconds bar
   s_seconds_bar = layer_create(GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT));
   layer_set_update_proc(s_seconds_bar, seconds_update_proc);
   layer_add_child(window_layer, s_seconds_bar);
 
+  // Bluetooth indicator
   s_bt_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BT_WHITE);
-
-  GRect bitmap_bounds = gbitmap_get_bounds(s_bt_bitmap);
+  GRect bt_bounds = gbitmap_get_bounds(s_bt_bitmap);
   s_bt_layer = layer_create(GRect(
-    (bounds.size.w - bitmap_bounds.size.w) / 2,
-    BT_Y_OFFSET, bitmap_bounds.size.w, bitmap_bounds.size.h));
+    (bounds.size.w - bt_bounds.size.w) / 2,
+    BT_Y_OFFSET, bt_bounds.size.w, bt_bounds.size.h));
   layer_set_update_proc(s_bt_layer, bt_update_proc);
   layer_add_child(window_layer, s_bt_layer);
-
   if(data_get_boolean_setting(DataKeyBTIndicator)) {
     layer_set_hidden(s_bt_layer, bluetooth_connection_service_peek());
   }
+
+  // Weather icon
+  s_weather_bitmap = gbitmap_create_with_resource(RESOURCE_ID_WEATHER_UNKNOWN);
+  GRect weather_bounds = gbitmap_get_bounds(s_weather_bitmap);
+  const int x_margin = (bounds.size.w - weather_bounds.size.w) / 2;
+  const GEdgeInsets weather_insets = GEdgeInsets(30, x_margin, 0, x_margin);
+  s_weather_layer = bitmap_layer_create(grect_inset(bounds, weather_insets));
+#if defined(PBL_SDK_3)
+  bitmap_layer_set_compositing_mode(s_weather_layer, GCompOpSet);
+#endif
+  bitmap_layer_set_bitmap(s_weather_layer, s_weather_bitmap);
+  layer_add_child(window_layer, bitmap_layer_get_layer(s_weather_layer));
 }
 
 static void window_unload(Window *window) {
@@ -355,6 +379,9 @@ static void window_unload(Window *window) {
 
   layer_destroy(s_bt_layer);
   gbitmap_destroy(s_bt_bitmap);
+
+  bitmap_layer_destroy(s_weather_layer);
+  gbitmap_destroy(s_weather_bitmap);
 
   window_destroy(s_window);
   s_window = NULL;
