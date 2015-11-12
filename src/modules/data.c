@@ -4,19 +4,30 @@
 static GColor s_foreground, s_background;
 static bool s_bool_settings[DataNumBoolKeys];
 
+static void write_defaults() {
+  s_bool_settings[DataKeyDate] = false;
+  s_bool_settings[DataKeyAnimations] = true;
+  s_bool_settings[DataKeyBTIndicator] = true;
+  s_bool_settings[DataKeyHourlyVibration] = false;
+  s_bool_settings[DataKeySleep] = true;
+  s_foreground = GColorWhite;
+  s_background = GColorBlack;
+  data_deinit();
+}
+
 void data_init() {
   // Nuke previus version settings
-  if(!persist_exists(V_3_0)) {
+  if(!persist_exists(V_3_1)) {
+    persist_write_bool(V_3_1, true);
+
     for(int i = 0; i < DataNumBoolKeys; i++) {
       persist_delete(i);
     }
     persist_delete(DataKeyForegroundColor);
     persist_delete(DataKeyBackgroundColor);
 
-    persist_write_bool(V_3_0, true);
-  }
-
-  if(persist_exists(DataKeyDate)) {
+    write_defaults();
+  } else {
     // Read settings
     for(int i = 0; i < DataNumBoolKeys; i++) {
       s_bool_settings[i] = persist_read_bool(i);
@@ -28,17 +39,6 @@ void data_init() {
     s_foreground = (persist_read_int(DataKeyForegroundColor) == 1) ? GColorWhite : GColorBlack;
     s_background = (persist_read_int(DataKeyBackgroundColor) == 1) ? GColorWhite : GColorBlack;
 #endif
-  } else {
-    // Load defaults
-    s_bool_settings[DataKeyDate] = false;
-    s_bool_settings[DataKeyAnimations] = true;
-    s_bool_settings[DataKeyBTIndicator] = true;
-    s_bool_settings[DataKeyHourlyVibration] = false;
-    s_foreground = GColorWhite;
-    s_background = GColorBlack;
-
-    // Reinit
-    data_deinit();
   }
 }
 

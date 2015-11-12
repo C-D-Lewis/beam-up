@@ -22,6 +22,11 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     data_set_boolean_setting(DataKeyHourlyVibration, strcmp(hourly_tuple->value->cstring, "true") == 0);
   }
 
+  Tuple *sleep_tuple = dict_find(iter, DataKeySleep);
+  if(sleep_tuple) {
+    data_set_boolean_setting(DataKeySleep, strcmp(sleep_tuple->value->cstring, "true") == 0);
+  }
+
 #if defined(PBL_SDK_3)
   Tuple *fg_tuple = dict_find(iter, DataKeyForegroundColor);
   if(fg_tuple) {

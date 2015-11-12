@@ -1,8 +1,8 @@
 {
-  "versionLabel": "3.01",
+  "versionLabel": "3.1",
   "uuid": "67ca694e-9543-41ce-8db3-3d4896e2fbd3",
   "longName": "Beam Up",
-  "versionCode": 15,
+  "versionCode": 16,
   "shortName": "Beam Up",
   "companyName": "Chris Lewis",
   "watchapp": {
@@ -22,9 +22,10 @@
     "DataKeyAnimations": 1,
     "DataKeyBTIndicator": 2,
     "DataKeyHourlyVibration": 3,
-    "DataKeyNumBoolKeys": 4,
-    "DataKeyForegroundColor": 5,
-    "DataKeyBackgroundColor": 6
+    "DataKeySleep": 4,
+    "DataKeyNumBoolKeys": 5,
+    "DataKeyForegroundColor": 50,
+    "DataKeyBackgroundColor": 51
   },
   "resources": {
     "media": [

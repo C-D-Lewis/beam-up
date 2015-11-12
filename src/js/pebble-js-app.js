@@ -1,4 +1,4 @@
-var VERSION = "3.0";
+var VERSION = "3.1";
 var DEBUG = false;
 
 // https://github.com/smallstoneapps/gcolor.js/blob/master/lib/gcolor.js
@@ -24,7 +24,7 @@ function debug(content) {
 /******************************** PebbleKit JS ********************************/
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  Pebble.openURL('https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/beamup-basalt-configuration.html?version=' + VERSION);
+  Pebble.openURL('https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/beamup-basalt-configuration-testing.html?version=' + VERSION);
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {

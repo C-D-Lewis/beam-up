@@ -7,13 +7,15 @@ typedef enum {
   DataKeyAnimations,
   DataKeyBTIndicator,
   DataKeyHourlyVibration, // These must be linear for getting/setting
-  DataNumBoolKeys,            // 4
-  DataKeyForegroundColor,
-  DataKeyBackgroundColor
+  DataKeySleep,
+  DataNumBoolKeys,            // 5
+  DataKeyForegroundColor = 50,
+  DataKeyBackgroundColor = 51
 } DataKey;
 
 typedef enum {
-  V_3_0 = 100,
+  V_3_0 = 100,    // When settings need nuking
+  V_3_1 = 101
 } VersionKeys;
 
 void data_init();
