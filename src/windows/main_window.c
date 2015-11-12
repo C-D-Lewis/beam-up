@@ -315,10 +315,10 @@ static void window_load(Window *window) {
   layer_set_update_proc(s_inv_layer, inv_update_proc);
   layer_add_child(window_layer, s_inv_layer);
 
-  s_date_layer = text_layer_create(GRect(DATE_X_OFFSET, SECONDS_Y_OFFSET, bounds.size.w, DATE_HEIGHT));
+  s_date_layer = text_layer_create(GRect(DATE_X_OFFSET, SECONDS_Y_OFFSET, bounds.size.w - DATE_X_OFFSET, DATE_HEIGHT));
   text_layer_set_text_color(s_date_layer, data_get_foreground_color());
   text_layer_set_background_color(s_date_layer, GColorClear);
-  text_layer_set_text_alignment(s_date_layer, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft));
+  text_layer_set_text_alignment(s_date_layer, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentRight));
   text_layer_set_font(s_date_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IMAGINE_24)));
   if(data_get_boolean_setting(DataKeyDate)) {
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
