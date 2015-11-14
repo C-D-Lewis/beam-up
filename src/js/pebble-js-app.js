@@ -1,4 +1,4 @@
-var VERSION = "3.2";
+var VERSION = "3.3";
 var DEBUG = false;
 
 // https://github.com/smallstoneapps/gcolor.js/blob/master/lib/gcolor.js

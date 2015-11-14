@@ -81,20 +81,18 @@ static void animation_stopped_handler(Animation *animation, bool finished, void 
 
 static Animation* animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay) {
   bool do_animations = data_get_boolean_setting(DataKeyAnimations);
+  if(!do_animations) {
+    return NULL;
+  }
 
   // Sleeping?
   if(do_animations && data_get_boolean_setting(DataKeySleep)) {
     time_t now = time(NULL);
-    struct tm * tm_now = localtime(&now);
+    struct tm *tm_now = localtime(&now);
     int hours = tm_now->tm_hour;
-    hours -= (hours > 12) ? 12 : 0;
     if(hours >= 0 && hours < 6) {
-      do_animations = false;
+      return NULL;
     }
-  }
-
-  if(!do_animations) {
-    return NULL;
   }
 
   PropertyAnimation *prop_anim = property_animation_create_layer_frame(layer,
