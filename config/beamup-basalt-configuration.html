@@ -28,19 +28,19 @@
     </p>
     <table>
       <tr>
-        <td>Show short date</td><td><input id='check_date' type='checkbox'/>
+        <td>Show short date</td><td><input id='check_date' type='checkbox'/></td>
       </tr>
       <tr>
-        <td>Animations</td><td><input id='check_animations' type='checkbox'/>
+        <td>Animations</td><td><input id='check_animations' type='checkbox'/></td>
       </tr>
       <tr>
         <td>Show disconnected indicator</td><td><input id='check_bluetooth' type='checkbox'/></td>
       </tr>
       <tr>
-        <td>Vibrate on the hour</td><td><input id='check_hourly' type='checkbox'/>
+        <td>Vibrate on the hour</td><td><input id='check_hourly' type='checkbox'/></td>
       </tr>
       <tr>
-        <td>Sleep (don't animate) at night (00:00 - 6:00)</td><td><input id='check_sleep' type='checkbox'/>
+        <td>Sleep (don't animate) at night (00:00 - 6:00)</td><td><input id='check_sleep' type='checkbox'/></td>
       </tr>
     </table>
 
@@ -146,6 +146,7 @@
           persistWrite('bluetooth', options['bluetooth']);
           persistWrite('hourly', options['hourly']);
           persistWrite('sleep', options['sleep']);
+          persistWrite('foreground', options['foreground']);
           persistWrite('background', options['background']);
 
           // Return

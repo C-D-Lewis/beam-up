@@ -288,6 +288,10 @@ static void inv_update_proc(Layer *layer, GContext *ctx) {
 }
 
 static void bt_update_proc(Layer *layer, GContext *ctx) {
+  if(!data_get_boolean_setting(DataKeyBTIndicator)) {
+    return;
+  }
+
   // Draw it white
 #if defined(PBL_SDK_3)
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
@@ -351,6 +355,9 @@ static void window_load(Window *window) {
 
   if(data_get_boolean_setting(DataKeyBTIndicator)) {
     layer_set_hidden(s_bt_layer, bluetooth_connection_service_peek());
+  } else {
+    // Don't want this
+    layer_set_hidden(s_bt_layer, true);
   }
 }
 
