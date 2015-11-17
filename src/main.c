@@ -11,7 +11,7 @@ static void tick_handler(struct tm* tick_time, TimeUnits changed) {
 
 static void init() {
   data_init();
-  comm_init(64, 64, false);
+  comm_init(128, 128, false);
   setlocale(LC_ALL, "");
 
   main_window_push();
@@ -20,7 +20,7 @@ static void init() {
     ? SECOND_UNIT : MINUTE_UNIT, tick_handler);
 }
 
-static void deinit() { 
+static void deinit() {
   data_deinit();
   comm_deinit();
 }
