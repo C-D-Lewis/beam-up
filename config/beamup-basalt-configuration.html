@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Beam Up Configuration</title>
+    <title>Beam Up Configuration TESTING</title>
   </head>
   <body>
     <h2>Beam Up Configuration</h2>
@@ -10,15 +10,15 @@
 
     <h3>Colors (Pebble Time/Steel/Round only)</h3>
 
-    <a href="http://www.w3schools.com/tags/ref_colorpicker.asp">Hex color picker</a> (get code then return here)
+    <a href="http://www.w3schools.com/tags/ref_colorpicker.asp">Hex color picker</a> (get code then return here).
     <br/><br/>
 
     <table>
       <tr>
-        <td>Foreground color (Hex, no '#')</td><td><input type="text" size="8" id="text_foreground_color"></td>
+        <td>Foreground color (Hex)</td><td><input type="text" size="8" id="text_foreground_color"></td>
       </tr>
       <tr>
-        <td>Background color (Hex, no '#')</td><td><input type="text" size="8" id="text_background_color"></td>
+        <td>Background color (Hex)</td><td><input type="text" size="8" id="text_background_color"></td>
       </tr>
     </table>
     <hr/>
@@ -99,7 +99,7 @@
         document.getElementById('text_background_color').value = '' + persistRead('background', '000000');
       }
 
-      function xhrAsyncRequest(url, type, callback) {
+      function ajax(url, type, callback) {
         var xhr = new XMLHttpRequest();
         xhr.onload = function () {
           callback(this.responseText);
@@ -110,15 +110,12 @@
 
       function getAppVersionAndNews() {
         //Get latest
-        xhrAsyncRequest(
-          'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json',
-          'GET',
-          function(responseText) {
-            var json = JSON.parse(responseText);
-            document.getElementById('p_version').innerHTML = 'Latest version: ' + json.beamupbasalt;
-            document.getElementById('news').innerHTML = '' + json.beamupbasaltnews;
-          }
-        );
+        var url = 'https://dl.dropboxusercontent.com/u/10824180/pebble%20config%20pages/app_versions.json';
+        ajax(url, 'GET', function(responseText) {
+          var json = JSON.parse(responseText);
+          document.getElementById('p_version').innerHTML = 'Latest version: ' + json.beamupbasalt;
+          document.getElementById('news').innerHTML = '' + json.beamupbasaltnews;
+        });
 
         //Get local
         var version = '' + document.location;
@@ -127,32 +124,29 @@
       }
 
       var submitButton = document.getElementById('save_button');
-      submitButton.addEventListener('click',
-        function() {
+      submitButton.addEventListener('click', function() {
+        var options = {
+          'date': document.getElementById('check_date').checked ? 'true' : 'false',
+          'animations': document.getElementById('check_animations').checked ? 'true' : 'false',
+          'bluetooth': document.getElementById('check_bluetooth').checked ? 'true' : 'false',
+          'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false',
+          'sleep': document.getElementById('check_sleep').checked ? 'true' : 'false',
+          'foreground': '' + document.getElementById('text_foreground_color').value,
+          'background': '' + document.getElementById('text_background_color').value
+        };
 
-          var options = {
-            'date': document.getElementById('check_date').checked ? 'true' : 'false',
-            'animations': document.getElementById('check_animations').checked ? 'true' : 'false',
-            'bluetooth': document.getElementById('check_bluetooth').checked ? 'true' : 'false',
-            'hourly': document.getElementById('check_hourly').checked ? 'true' : 'false',
-            'sleep': document.getElementById('check_sleep').checked ? 'true' : 'false',
-            'foreground': '' + document.getElementById('text_foreground_color').value,
-            'background': '' + document.getElementById('text_background_color').value
-          };
+        // Save
+        persistWrite('date', options['date']);
+        persistWrite('animations', options['animations']);
+        persistWrite('bluetooth', options['bluetooth']);
+        persistWrite('hourly', options['hourly']);
+        persistWrite('sleep', options['sleep']);
+        persistWrite('foreground', options['foreground']);
+        persistWrite('background', options['background']);
 
-          // Save
-          persistWrite('date', options['date']);
-          persistWrite('animations', options['animations']);
-          persistWrite('bluetooth', options['bluetooth']);
-          persistWrite('hourly', options['hourly']);
-          persistWrite('sleep', options['sleep']);
-          persistWrite('foreground', options['foreground']);
-          persistWrite('background', options['background']);
-
-          // Return
-          document.location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
-        },
-      false);
+        // Return
+        document.location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
+      }, false);
 
       firstTimeSetup();
       getAppVersionAndNews();
