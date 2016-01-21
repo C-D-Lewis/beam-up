@@ -27,7 +27,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     data_set_boolean_setting(DataKeySleep, strcmp(sleep_tuple->value->cstring, "true") == 0);
   }
 
-#if defined(PBL_SDK_3)
+#if defined(PBL_COLOR)
   Tuple *fg_tuple = dict_find(iter, DataKeyForegroundColor);
   if(fg_tuple) {
     data_set_foreground_color((GColor){ .argb = fg_tuple->value->int32 });

@@ -73,12 +73,6 @@ static void safe_animation_schedule(Animation *animation) {
   }
 }
 
-static void animation_stopped_handler(Animation *animation, bool finished, void *context) {
-#if defined(PBL_SDK_2)
-  property_animation_destroy((PropertyAnimation*)animation);
-#endif
-}
-
 static Animation* animate_layer(Layer *layer, GRect start, GRect finish, int duration, int delay) {
   bool do_animations = data_get_boolean_setting(DataKeyAnimations);
   if(!do_animations) {
@@ -100,9 +94,6 @@ static Animation* animate_layer(Layer *layer, GRect start, GRect finish, int dur
   Animation *anim = property_animation_get_animation(prop_anim);
   animation_set_duration(anim, duration);
   animation_set_delay(anim, delay);
-  animation_set_handlers(anim, (AnimationHandlers) {
-    .stopped = animation_stopped_handler
-  }, NULL);
   return anim;
 }
 

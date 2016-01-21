@@ -9,7 +9,7 @@ static void write_defaults() {
   s_bool_settings[DataKeyAnimations] = true;
   s_bool_settings[DataKeyBTIndicator] = true;
   s_bool_settings[DataKeyHourlyVibration] = false;
-  s_bool_settings[DataKeySleep] = true;
+  s_bool_settings[DataKeySleep] = false;
   s_foreground = GColorWhite;
   s_background = GColorBlack;
   data_deinit();
