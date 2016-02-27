@@ -401,6 +401,18 @@ void main_window_reload_config() {
     layer_set_hidden(s_bt_layer, true);
   }
 
+  bool do_animations = data_get_boolean_setting(DataKeyAnimations);
+  for(int i = 0; i < NUM_CHARS; i++) {
+    if(do_animations) {
+      layer_add_child(window_layer, s_beams[i]);
+      layer_add_child(window_layer, s_seconds_bar);
+    } else {
+      // Remove animation layers in case they are in progress
+      layer_remove_from_parent(s_beams[i]);
+      layer_remove_from_parent(s_seconds_bar);
+    }
+  }
+
   // Colors
   window_set_background_color(s_window, data_get_background_color());
   for(int i = 0; i < NUM_CHARS; i++) {
