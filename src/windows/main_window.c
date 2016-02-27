@@ -154,19 +154,9 @@ static void animate_beams(struct tm *tick_time) {
       // Bottom surface down
       anims[8] = animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT), 500, 500);
 
-#if defined(PBL_SDK_3)
       Animation *spawn = animation_spawn_create_from_array((Animation**)&anims, 9);
       safe_animation_schedule(spawn);
-#else
-      for(int i = 0; i < 9; i++) {
-        // Not all digits will be animating!
-        if(anims[i]) {
-          safe_animation_schedule(anims[i]);
-        }
-      }
-#endif
-    }
-      break;
+    } break;
 
     // Fix 'stuck' animations
     case 2:
@@ -235,19 +225,9 @@ static void animate_beams(struct tm *tick_time) {
         anims[7] = animate_layer(s_beams[3], layer_get_frame(s_beams[3]), GRect(MINS_UNITS_X_OFFSET + BEAM_X_OFFSET, 0, BEAM_SIZE.w, BEAM_SIZE.h), 400, 0);
       }
 
-#if defined(PBL_SDK_3)
       Animation *spawn = animation_spawn_create_from_array((Animation**)&anims, 8);
       safe_animation_schedule(spawn);
-#else
-      for(int i = 0; i < 8; i++) {
-        // Not all digits will be animating!
-        if(anims[i]) {
-          safe_animation_schedule(anims[i]);
-        }
-      }
-#endif
-    }
-      break;
+    } break;
   }
 }
 
@@ -284,9 +264,7 @@ static void bt_update_proc(Layer *layer, GContext *ctx) {
   }
 
   // Draw it white
-#if defined(PBL_SDK_3)
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
-#endif
   graphics_draw_bitmap_in_rect(ctx, s_bt_bitmap, gbitmap_get_bounds(s_bt_bitmap));
 
   // Swap to FG color
