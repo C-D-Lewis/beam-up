@@ -363,19 +363,6 @@ void main_window_push() {
     s_digit_states_prev[i] = s_digit_states_now[i];
   }
 
-  // Init seconds bar
-  GRect bounds = layer_get_bounds(window_get_root_layer(s_window));
-  int seconds = time_now->tm_sec;
-  if(seconds >= 15 && seconds < 30) {
-    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0));
-  } else if(seconds >= 30 && seconds < 45) {
-    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0));
-  } else if(seconds >= 45 && seconds < 58) {
-    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
-  } else if(seconds >= 58) {
-    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0));
-  }
-
   main_window_reload_config();
 }
 
@@ -429,4 +416,19 @@ void main_window_reload_config() {
 
   layer_mark_dirty(s_bt_layer);
   layer_mark_dirty(s_inv_layer);
+
+  // Init seconds bar
+  time_t temp = time(NULL);
+  struct tm *time_now = localtime(&temp);
+  GRect bounds = layer_get_bounds(window_layer);
+  int seconds = time_now->tm_sec;
+  if(seconds >= 15 && seconds < 30) {
+    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 4, SECONDS_HEIGHT), 500, 0));
+  } else if(seconds >= 30 && seconds < 45) {
+    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w / 2, SECONDS_HEIGHT), 500, 0));
+  } else if(seconds >= 45 && seconds < 58) {
+    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
+  } else if(seconds >= 58) {
+    safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0));
+  }
 }
