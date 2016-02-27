@@ -4,52 +4,47 @@
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *date_tuple = dict_find(iter, DataKeyDate);
   if(date_tuple) {
-    data_set_boolean_setting(DataKeyDate, strcmp(date_tuple->value->cstring, "true") == 0);
+    data_set_boolean_setting(DataKeyDate, (date_tuple->value->int32 == 1));
   }
 
   Tuple *anim_tuple = dict_find(iter, DataKeyAnimations);
   if(anim_tuple) {
-    data_set_boolean_setting(DataKeyAnimations, strcmp(anim_tuple->value->cstring, "true") == 0);
+    data_set_boolean_setting(DataKeyAnimations, (anim_tuple->value->int32 == 1));
   }
 
   Tuple *bt_tuple = dict_find(iter, DataKeyBTIndicator);
   if(bt_tuple) {
-    data_set_boolean_setting(DataKeyBTIndicator, strcmp(bt_tuple->value->cstring, "true") == 0);
+    data_set_boolean_setting(DataKeyBTIndicator, (bt_tuple->value->int32 == 1));
   }
 
   Tuple *hourly_tuple = dict_find(iter, DataKeyHourlyVibration);
   if(hourly_tuple) {
-    data_set_boolean_setting(DataKeyHourlyVibration, strcmp(hourly_tuple->value->cstring, "true") == 0);
+    data_set_boolean_setting(DataKeyHourlyVibration, (hourly_tuple->value->int32 == 1));
   }
 
   Tuple *sleep_tuple = dict_find(iter, DataKeySleep);
   if(sleep_tuple) {
-    data_set_boolean_setting(DataKeySleep, strcmp(sleep_tuple->value->cstring, "true") == 0);
+    data_set_boolean_setting(DataKeySleep, (sleep_tuple->value->int32 == 1));
   }
 
 #if defined(PBL_COLOR)
   Tuple *fg_tuple = dict_find(iter, DataKeyForegroundColor);
   if(fg_tuple) {
-    data_set_foreground_color((GColor){ .argb = fg_tuple->value->int32 });
+    data_set_foreground_color(GColorFromHEX(fg_tuple->value->int32));
   }
 
   Tuple *bg_tuple = dict_find(iter, DataKeyBackgroundColor);
   if(bg_tuple) {
-    data_set_background_color((GColor){ .argb = bg_tuple->value->int32 });
+    data_set_background_color(GColorFromHEX(bg_tuple->value->int32));
   }
 #endif
 
-  // Exit to reload settings
-  window_stack_pop_all(true);
+  main_window_reload_config();
 }
 
-void comm_init(uint32_t inbox, uint32_t outbox, bool maximum) {
+void comm_init(uint32_t inbox, uint32_t outbox) {
   app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(
-    maximum ? app_message_inbox_size_maximum() : inbox,
-    maximum ? app_message_outbox_size_maximum() : outbox);
+  app_message_open(inbox, outbox);
 }
 
-void comm_deinit() {
-  app_message_deregister_callbacks();
-}
+void comm_deinit() { }

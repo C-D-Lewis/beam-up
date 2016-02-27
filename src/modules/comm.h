@@ -4,6 +4,8 @@
 
 #include "data.h"
 
-void comm_init(uint32_t inbox, uint32_t outbox, bool maximum);
+#include "../windows/main_window.h"
+
+void comm_init(uint32_t inbox, uint32_t outbox);
 
 void comm_deinit();

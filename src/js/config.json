@@ -62,7 +62,7 @@
       },
       {
         "type": "toggle",
-        "label": "Sleep (don't animate) between 00:00 and 06:00",
+        "label": "Don't animate between 00:00 and 06:00",
         "appKey": "DataKeySleep",
         "defaultValue": true
       }

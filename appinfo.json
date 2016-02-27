@@ -8,6 +8,7 @@
   "watchapp": {
     "watchface": true
   },
+  "enableMultiJS": true,
   "targetPlatforms": [
     "aplite",
     "basalt",

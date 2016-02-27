@@ -295,6 +295,10 @@ static void bt_update_proc(Layer *layer, GContext *ctx) {
   graphics_release_frame_buffer(ctx, fb);
 }
 
+static void tick_handler(struct tm* tick_time, TimeUnits changed) {
+  animate_beams(tick_time);
+}
+
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -306,7 +310,6 @@ static void window_load(Window *window) {
   s_digits[4] = text_layer_create(GRect(MINS_UNITS_X_OFFSET, Y_OFFSET, DIGIT_SIZE.w, DIGIT_SIZE.h));
 
   for(int i = 0; i < NUM_CHARS; i++) {
-    text_layer_set_text_color(s_digits[i], data_get_foreground_color());
     text_layer_set_background_color(s_digits[i], GColorClear);
     text_layer_set_text_alignment(s_digits[i], GTextAlignmentRight);
     text_layer_set_font(s_digits[i], fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IMAGINE_48)));
@@ -323,13 +326,9 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, s_inv_layer);
 
   s_date_layer = text_layer_create(GRect(DATE_X_OFFSET, SECONDS_Y_OFFSET, bounds.size.w - DATE_X_OFFSET, DATE_HEIGHT));
-  text_layer_set_text_color(s_date_layer, data_get_foreground_color());
   text_layer_set_background_color(s_date_layer, GColorClear);
   text_layer_set_text_alignment(s_date_layer, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentRight));
   text_layer_set_font(s_date_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IMAGINE_24)));
-  if(data_get_boolean_setting(DataKeyDate)) {
-    layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
-  }
 
   s_seconds_bar = layer_create(GRect(0, SECONDS_Y_OFFSET, 0, SECONDS_HEIGHT));
   layer_set_update_proc(s_seconds_bar, seconds_update_proc);
@@ -343,13 +342,6 @@ static void window_load(Window *window) {
     BT_Y_OFFSET, bitmap_bounds.size.w, bitmap_bounds.size.h));
   layer_set_update_proc(s_bt_layer, bt_update_proc);
   layer_add_child(window_layer, s_bt_layer);
-
-  if(data_get_boolean_setting(DataKeyBTIndicator)) {
-    layer_set_hidden(s_bt_layer, bluetooth_connection_service_peek());
-  } else {
-    // Don't want this
-    layer_set_hidden(s_bt_layer, true);
-  }
 }
 
 static void window_unload(Window *window) {
@@ -375,7 +367,6 @@ static void window_unload(Window *window) {
 void main_window_push() {
   if(!s_window) {
     s_window = window_create();
-    window_set_background_color(s_window, data_get_background_color());
     window_set_window_handlers(s_window, (WindowHandlers) {
       .load = window_load,
       .unload = window_unload,
@@ -388,10 +379,6 @@ void main_window_push() {
   struct tm *time_now = localtime(&temp);
   update_digit_values(time_now);
   show_digit_values();
-
-  if(data_get_boolean_setting(DataKeyBTIndicator)) {
-    bluetooth_connection_service_subscribe(bt_handler);
-  }
 
   // Stop 'all change' on first minute
   for(int i = 0; i < NUM_CHARS - 1; i++) {
@@ -410,12 +397,43 @@ void main_window_push() {
   } else if(seconds >= 58) {
     safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0));
   }
-}
 
-void main_window_update_time(struct tm *tick_time) {
-  animate_beams(tick_time);
+  main_window_reload_config();
 }
 
 void main_window_reload_config() {
+  Layer *window_layer = window_get_root_layer(s_window);
 
+  // Services
+  tick_timer_service_unsubscribe();
+  tick_timer_service_subscribe(data_get_boolean_setting(DataKeyAnimations) ? SECOND_UNIT : MINUTE_UNIT, tick_handler);
+  if(data_get_boolean_setting(DataKeyBTIndicator)) {
+    connection_service_subscribe((ConnectionHandlers) {
+      .pebble_app_connection_handler = bt_handler
+    });
+  } else {
+    connection_service_unsubscribe();
+  }
+
+  // BT layer
+  if(data_get_boolean_setting(DataKeyBTIndicator)) {
+    layer_set_hidden(s_bt_layer, connection_service_peek_pebble_app_connection());
+  } else {
+    // Don't want this
+    layer_set_hidden(s_bt_layer, true);
+  }
+
+  // Colors
+  window_set_background_color(s_window, data_get_background_color());
+  for(int i = 0; i < NUM_CHARS; i++) {
+    text_layer_set_text_color(s_digits[i], data_get_foreground_color());
+  }
+  text_layer_set_text_color(s_date_layer, data_get_foreground_color());
+
+  // Show date
+  if(data_get_boolean_setting(DataKeyDate)) {
+    layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
+  } else {
+    layer_remove_from_parent(text_layer_get_layer(s_date_layer));
+  }
 }

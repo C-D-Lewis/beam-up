@@ -5,19 +5,14 @@
 #include "modules/data.h"
 #include "modules/comm.h"
 
-static void tick_handler(struct tm* tick_time, TimeUnits changed) {
-  main_window_update_time(tick_time);
-}
-
 static void init() {
   data_init();
-  comm_init(128, 128, false);
+
+  const uint32_t buffer_size = 128;
+  comm_init(buffer_size, buffer_size);
   setlocale(LC_ALL, "");
 
   main_window_push();
-
-  tick_timer_service_subscribe(data_get_boolean_setting(DataKeyAnimations)
-    ? SECOND_UNIT : MINUTE_UNIT, tick_handler);
 }
 
 static void deinit() {
