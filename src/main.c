@@ -8,7 +8,7 @@
 static void init() {
   data_init();
 
-  const uint32_t buffer_size = 128;
+  const uint32_t buffer_size = 256;
   comm_init(buffer_size, buffer_size);
   setlocale(LC_ALL, "");
 

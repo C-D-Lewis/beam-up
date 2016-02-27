@@ -4,27 +4,27 @@
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *date_tuple = dict_find(iter, DataKeyDate);
   if(date_tuple) {
-    data_set_boolean_setting(DataKeyDate, (date_tuple->value->int32 == 1));
+    data_set_boolean_setting(DataKeyDate, (date_tuple->value->int8 == 1));
   }
 
   Tuple *anim_tuple = dict_find(iter, DataKeyAnimations);
   if(anim_tuple) {
-    data_set_boolean_setting(DataKeyAnimations, (anim_tuple->value->int32 == 1));
+    data_set_boolean_setting(DataKeyAnimations, (anim_tuple->value->int8 == 1));
   }
 
   Tuple *bt_tuple = dict_find(iter, DataKeyBTIndicator);
   if(bt_tuple) {
-    data_set_boolean_setting(DataKeyBTIndicator, (bt_tuple->value->int32 == 1));
+    data_set_boolean_setting(DataKeyBTIndicator, (bt_tuple->value->int8 == 1));
   }
 
   Tuple *hourly_tuple = dict_find(iter, DataKeyHourlyVibration);
   if(hourly_tuple) {
-    data_set_boolean_setting(DataKeyHourlyVibration, (hourly_tuple->value->int32 == 1));
+    data_set_boolean_setting(DataKeyHourlyVibration, (hourly_tuple->value->int8 == 1));
   }
 
   Tuple *sleep_tuple = dict_find(iter, DataKeySleep);
   if(sleep_tuple) {
-    data_set_boolean_setting(DataKeySleep, (sleep_tuple->value->int32 == 1));
+    data_set_boolean_setting(DataKeySleep, (sleep_tuple->value->int8 == 1));
   }
 
 #if defined(PBL_COLOR)

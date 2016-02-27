@@ -436,4 +436,7 @@ void main_window_reload_config() {
   } else {
     layer_remove_from_parent(text_layer_get_layer(s_date_layer));
   }
+
+  layer_mark_dirty(s_bt_layer);
+  layer_mark_dirty(s_inv_layer);
 }

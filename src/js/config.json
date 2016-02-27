@@ -24,7 +24,7 @@
       {
         "type": "color",
         "label": "Foreground",
-        "appKey": "DataKeyFOregroundColor",
+        "appKey": "DataKeyForegroundColor",
         "defaultValue": "FFFFFF"
       }
     ]
