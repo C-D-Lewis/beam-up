@@ -1,3 +1,4 @@
+
 #include "main_window.h"
 
 static Window *s_window;
@@ -363,10 +364,11 @@ void main_window_push() {
     s_digit_states_prev[i] = s_digit_states_now[i];
   }
 
-  main_window_reload_config();
+  const bool delay = false;
+  main_window_reload_config(delay);
 }
 
-void main_window_reload_config() {
+static void reload_config() {
   Layer *window_layer = window_get_root_layer(s_window);
 
   // Services
@@ -378,7 +380,7 @@ void main_window_reload_config() {
     });
   } else {
     connection_service_unsubscribe();
-  }
+  }  
 
   // BT layer
   if(data_get_boolean_setting(DataKeyBTIndicator)) {
@@ -386,10 +388,10 @@ void main_window_reload_config() {
   } else {
     // Don't want this
     layer_set_hidden(s_bt_layer, true);
-  }
+  }  
 
   bool do_animations = data_get_boolean_setting(DataKeyAnimations);
-  for(int i = 0; i < NUM_CHARS; i++) {
+  for(int i = 0; i < NUM_BEAMS; i++) {
     if(do_animations) {
       layer_add_child(window_layer, s_beams[i]);
       layer_add_child(window_layer, s_seconds_bar);
@@ -415,7 +417,7 @@ void main_window_reload_config() {
   }
 
   layer_mark_dirty(s_bt_layer);
-  layer_mark_dirty(s_inv_layer);
+  layer_mark_dirty(s_inv_layer);  
 
   // Init seconds bar
   time_t temp = time(NULL);
@@ -430,5 +432,19 @@ void main_window_reload_config() {
     safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, (3 * bounds.size.w) / 4, SECONDS_HEIGHT), 500, 0));
   } else if(seconds >= 58) {
     safe_animation_schedule(animate_layer(s_seconds_bar, layer_get_frame(s_seconds_bar), GRect(0, SECONDS_Y_OFFSET, bounds.size.w, SECONDS_HEIGHT), 500, 0));
+  }
+}
+
+static void reload_config_handler(void *context) {
+  reload_config();
+}
+
+void main_window_reload_config(bool delay) {
+  if(delay) {
+    // Avoid weird things happening mid beaming up
+    const int wait_duration_ms = 2000;
+    app_timer_register(wait_duration_ms, reload_config_handler, NULL);
+  } else {
+    reload_config();
   }
 }

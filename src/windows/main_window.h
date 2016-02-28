@@ -10,4 +10,4 @@
 
 void main_window_push();
 
-void main_window_reload_config();
+void main_window_reload_config(bool delay);

@@ -39,7 +39,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   }
 #endif
 
-  main_window_reload_config();
+  const bool delay = true;
+  main_window_reload_config(delay);
 }
 
 void comm_init(uint32_t inbox, uint32_t outbox) {

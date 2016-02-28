@@ -4,6 +4,7 @@
 
 #define DEBUG                false
 
+#define NUM_BEAMS            4
 #define NUM_CHARS            5
 
 #define Y_OFFSET             53
