@@ -57,11 +57,19 @@ void data_set_boolean_setting(int data_key, bool value) {
 }
 
 GColor data_get_foreground_color() {
+#if defined(PBL_COLOR)
   return s_foreground;
+#else
+  return GColorWhite;
+#endif
 }
 
 GColor data_get_background_color() {
+#if defined(PBL_COLOR)
   return s_background;
+#else
+  return GColorBlack;
+#endif
 }
 
 void data_set_foreground_color(GColor color) {
