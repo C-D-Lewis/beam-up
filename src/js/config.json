@@ -1,8 +1,7 @@
 [
   { 
     "type": "heading", 
-    "defaultValue": "Beam Up Configuration" ,
-    "size": 3
+    "defaultValue": "Beam Up Configuration"
   }, 
   {
     "type": "section",
@@ -18,13 +17,13 @@
       {
         "type": "color",
         "label": "Background",
-        "appKey": "DataKeyBackgroundColor",
+        "messageKey": "DataKeyBackgroundColor",
         "defaultValue": "000000"
       },
       {
         "type": "color",
         "label": "Foreground",
-        "appKey": "DataKeyForegroundColor",
+        "messageKey": "DataKeyForegroundColor",
         "defaultValue": "FFFFFF"
       }
     ]
@@ -39,31 +38,31 @@
       {
         "type": "toggle",
         "label": "Show short date",
-        "appKey": "DataKeyDate",
+        "messageKey": "DataKeyDate",
         "defaultValue": false
       },
       {
         "type": "toggle",
         "label": "Play animations",
-        "appKey": "DataKeyAnimations",
+        "messageKey": "DataKeyAnimations",
         "defaultValue": true
       },
       {
         "type": "toggle",
         "label": "Vibrate on disconnect",
-        "appKey": "DataKeyBTIndicator",
+        "messageKey": "DataKeyBTIndicator",
         "defaultValue": true
       },
       {
         "type": "toggle",
         "label": "Vibrate on the hour",
-        "appKey": "DataKeyHourlyVibration",
+        "messageKey": "DataKeyHourlyVibration",
         "defaultValue": false
       },
       {
         "type": "toggle",
         "label": "Don't animate between 00:00 and 06:00",
-        "appKey": "DataKeySleep",
+        "messageKey": "DataKeySleep",
         "defaultValue": true
       }
     ]
