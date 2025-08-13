@@ -27,3 +27,7 @@ Using the 'Settings' button in the Pebble app after install, choose from the fol
 * Show disconnected indicator
 
 * Vibrate on the hour
+
+## TODO
+
+- Emery support

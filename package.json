@@ -1,5 +1,5 @@
 {
-  "version": "3.6.0",
+  "version": "3.7.0",
   "author": "Chris Lewis",
   "private": true,
   "dependencies": {
@@ -64,7 +64,8 @@
     "targetPlatforms": [
       "aplite",
       "basalt",
-      "chalk"
+      "chalk",
+      "diorite"
     ],
     "capabilities": [
       "configurable"
